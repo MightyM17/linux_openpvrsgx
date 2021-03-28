@@ -48,19 +48,6 @@
 		regulator-always-on; 
 		enable-active-high;
 	};
-	
-	reg_espresso_vmmc_external: regulator-espresso-vmmc-external {
-		pinctrl-names = "default";
-		pinctrl-0 = <&emmcen_gpio>;
-		compatible = "regulator-fixed";
-		regulator-name = "vmmc2";
-		regulator-max-microvolt = <1800000>;
-		regulator-min-microvolt = <1800000>;
-		gpio = <&gpio2 21 GPIO_ACTIVE_HIGH>;
-		startup-delay-us = <100000>;
-		regulator-always-on; 
-		enable-active-high;
-	};
 		
 	reg_touch_ldo_en: regulator-touch-ldo-en  {
 		compatible = "regulator-fixed";
@@ -225,22 +212,7 @@
 		OMAP4_IOPAD(0x152, PIN_INPUT_PULLUP | MUX_MODE0)	/* sdmmc5_dat3.sdmmc5_dat3 */	
 		>;
 	};
-	
-	mmc1_pins: pinmux_mmc1_pins {
-		pinctrl-single,pins = <
-		OMAP4_IOPAD(0x0e2, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_clk */
-		OMAP4_IOPAD(0x0e4, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_cmd */
-		OMAP4_IOPAD(0x0e6, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_dat0 */
-		OMAP4_IOPAD(0x0e8, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_dat1 */
-		OMAP4_IOPAD(0x0ea, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_dat1 */
-		OMAP4_IOPAD(0x0ec, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_dat3 */				
-		OMAP4_IOPAD(0x0ee, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_dat4 */				
-		OMAP4_IOPAD(0x0f0, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_dat5 */				
-		OMAP4_IOPAD(0x0f2, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_dat6 */
-		OMAP4_IOPAD(0x0f4, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc1_clk.sdmmc1_dat7 */
-		>;
-	};
-	
+
 	
 	dss_dpi_pins: pinmux_dss_dpi_pins {
 		pinctrl-single,pins = <
@@ -345,7 +317,7 @@
 #include "twl6030_omap4.dtsi"
 
 &vmmc {
-	/* https://github.com/LineageOS/android_kernel_samsung_espresso10/blob/67333f2574cd95b40c73a4809aea55d7e889b570/arch/arm/mach-omap2/board-espresso-pmic.c#L199 */
+	/* https://github.com/LineageOS/android_kernel_samsung_espresso10/blob/67333f2574cd95b40c73a4809aea55d7e889b570/arch/arm/mach-omap2/board-espresso-pmic.c */
 	regulator-min-microvolt = <1200000>;
 	regulator-max-microvolt = <3000000>;
 };
@@ -361,15 +333,7 @@
 };
 
 &mmc1 {
-	//status="disabled";
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc1_pins>;
-	
-	vmmc-supply = <&reg_espresso_vmmc_external>;
-	ti,non-removable;
-	bus-width = <8>;
-
+	status = "disabled";
 };
 
 
