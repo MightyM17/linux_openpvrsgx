@@ -258,7 +258,7 @@ static int omap_modeset_init(struct drm_device *dev)
 	plane_crtc_mask = (1 << priv->num_pipes) - 1;
 
 	for (i = 0; i < num_ovls; i++) {
-		enum drm_plane_type type = i < priv->num_pipes
+		enum drm_plane_type type = i == 0
 					 ? DRM_PLANE_TYPE_PRIMARY
 					 : DRM_PLANE_TYPE_OVERLAY;
 		struct drm_plane *plane;

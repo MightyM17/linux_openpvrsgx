@@ -70,22 +70,22 @@ endif # CONFIG_SGX_CEDARVIEW
 
 ifneq ($(CONFIG_SGX_OMAP),)
 ifeq ($(pvr_drv),yes)
-ifneq ($(CONFIG_ARCH_OMAP3),)
-	@$(kecho) "  MAKE    $(obj): omap3430"
-	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=omap3 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=121 AM_VERSION=3 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
-	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
-	@$(kecho) "  MAKE    $(obj): omap3630"
-	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=omap3630 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=125 AM_VERSION=3 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
-	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
-	@$(kecho) "  MAKE    $(obj): am3517"
-	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=am3517 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=125 AM_VERSION=3 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
-	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
-ifneq ($(CONFIG_SOC_AM33XX),)
-	@$(kecho) "  MAKE    $(obj): am3352"
-	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=am3352 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=125 AM_VERSION=3 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
-	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
-endif # CONFIG_SOC_AM33XX
-endif # CONFIG_ARCH_OMAP3
+#ifneq ($(CONFIG_ARCH_OMAP3),)
+#	@$(kecho) "  MAKE    $(obj): omap3430"
+#	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=omap3 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=121 AM_VERSION=3 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
+#	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
+#	@$(kecho) "  MAKE    $(obj): omap3630"
+#	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=omap3630 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=125 AM_VERSION=3 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
+#	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
+#	@$(kecho) "  MAKE    $(obj): am3517"
+#	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=am3517 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=125 AM_VERSION=3 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
+#	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
+#ifneq ($(CONFIG_SOC_AM33XX),)
+#	@$(kecho) "  MAKE    $(obj): am3352"
+#	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=am3352 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=125 AM_VERSION=3 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
+#	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
+#endif # CONFIG_SOC_AM33XX
+#endif # CONFIG_ARCH_OMAP3
 ifneq ($(CONFIG_ARCH_OMAP4),)
 	@$(kecho) "  MAKE    $(obj): omap4430/60"
 # ES1 would have REV=110 but that is unsupported by sgxerrata.h
@@ -95,27 +95,27 @@ ifneq ($(CONFIG_ARCH_OMAP4),)
 # see https://pyra-handheld.com/boards/threads/omap4470-sgx-drivers.78480/
 	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=omap4 SGX=sgx544 SGX_FLAG=SGX544 SGX_REV=112 AM_VERSION=4 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
 	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
-ifneq ($(CONFIG_SOC_AM43XX),)
-	@$(kecho) "  MAKE    $(obj): am4"
-	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=am4 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=125 AM_VERSION=4 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
-	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
-endif # CONFIG_SOC_AM43XX
+#ifneq ($(CONFIG_SOC_AM43XX),)
+#	@$(kecho) "  MAKE    $(obj): am4"
+#	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=am4 SGX=sgx530 SGX_FLAG=SGX530 SGX_REV=125 AM_VERSION=4 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
+#	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
+#endif # CONFIG_SOC_AM43XX
 endif # CONFIG_ARCH_OMAP4
-ifneq ($(CONFIG_SOC_OMAP5),)
-	@$(kecho) "  MAKE    $(obj): omap5"
+#ifneq ($(CONFIG_SOC_OMAP5),)
+#	@$(kecho) "  MAKE    $(obj): omap5"
 # ES1 includes 105 and ES2 includes 116
 # see https://e2e.ti.com/support/legacy_forums/omap/f/885/t/263519?OMAP5432-SGX544-Revisions
-	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=omap5 SGX=sgx544 SGX_FLAG=SGX544 SGX_REV=116 AM_VERSION=5 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
-	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
-	@$(kecho) "  MAKE    $(obj): am57xx"
-	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=am57xx SGX=sgx544 SGX_FLAG=SGX544 SGX_REV=116 AM_VERSION=5 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
-	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
-endif	# CONFIG_SOC_OMAP5
-ifneq ($(CONFIG_SOC_DRA7XX),)
-	@$(kecho) "  MAKE    $(obj): dra7"
-	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=dra7 SGX=sgx544 SGX_FLAG=SGX544 SGX_REV=116 AM_VERSION=5 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
-	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
-endif	# CONFIG_SOC_DRA7XX
+#	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=omap5 SGX=sgx544 SGX_FLAG=SGX544 SGX_REV=116 AM_VERSION=5 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
+#	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
+#	@$(kecho) "  MAKE    $(obj): am57xx"
+#	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=am57xx SGX=sgx544 SGX_FLAG=SGX544 SGX_REV=116 AM_VERSION=5 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
+#	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
+#endif	# CONFIG_SOC_OMAP5
+#ifneq ($(CONFIG_SOC_DRA7XX),)
+#	@$(kecho) "  MAKE    $(obj): dra7"
+#	$(Q)SOC_VENDOR=ti SOC_FAMILY=omap SOC=dra7 SGX=sgx544 SGX_FLAG=SGX544 SGX_REV=116 AM_VERSION=5 TARGET_TYPE=$(CONFIG_SGX_OMAP) $(MAKE) $(build)=$(SOURCE)
+#	$(Q)if [ -r $(SOURCE)/modules.order ]; then cat $(SOURCE)/modules.order >>$(obj)/modules.order; fi
+#endif	# CONFIG_SOC_DRA7XX
 else # pvr_drv
 # kept here for compatibility with omap-pvr tree
 	@$(kecho) "  MAKE    $(obj): omap3"

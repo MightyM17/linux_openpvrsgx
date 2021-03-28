@@ -44,7 +44,7 @@
 #define MMS114_MAX_AREA			0xff
 
 #define MMS114_MAX_TOUCH		10
-#define MMS114_PACKET_NUM		8
+#define MMS114_PACKET_NUM		6
 
 /* Touch type */
 #define MMS114_TYPE_NONE		0
