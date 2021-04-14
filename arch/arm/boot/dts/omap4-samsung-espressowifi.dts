@@ -4,7 +4,7 @@
 
 / {
 	model = "Samsung Galaxy Tab 2 Wifi 7-inch";
-	compatible = "samsung,espresso7wifi", "ti,omap4430", "ti,omap4";
+	compatible = "samsung,espressowifi", "ti,omap4430", "ti,omap4";
 	
 	memory@80000000 {
 		device_type = "memory";
