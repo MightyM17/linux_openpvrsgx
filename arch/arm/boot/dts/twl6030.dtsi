@@ -97,6 +97,11 @@
 		#pwm-cells = <2>;
 	};
 
+	clk32kg: regulator-clk32kg {
+		compatible = "ti,twl6030-clk32kg";
+		regulator-always-on;
+	};
+
 	gpadc {
 		compatible = "ti,twl6030-gpadc";
 		interrupts = <3>;
