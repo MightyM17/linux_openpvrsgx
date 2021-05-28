@@ -3728,6 +3728,7 @@ void dispc_mgr_set_clock_div(struct dispc_device *dispc,
 			     enum omap_channel channel,
 			     const struct dispc_clock_info *cinfo)
 {
+	dump_stack();
 	DSSDBG("lck = %lu (%u)\n", cinfo->lck, cinfo->lck_div);
 	DSSDBG("pck = %lu (%u)\n", cinfo->pck, cinfo->pck_div);
 

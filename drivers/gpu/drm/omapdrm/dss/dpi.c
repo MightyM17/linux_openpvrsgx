@@ -219,6 +219,7 @@ static bool dpi_calc_dss_cb(unsigned long fck, void *data)
 static bool dpi_pll_clk_calc(struct dpi_data *dpi, unsigned long pck,
 		struct dpi_clk_calc_ctx *ctx)
 {
+	DSSDBG("HELLO NEW DEBUGGING");
 	unsigned long clkin;
 
 	memset(ctx, 0, sizeof(*ctx));
@@ -226,12 +227,15 @@ static bool dpi_pll_clk_calc(struct dpi_data *dpi, unsigned long pck,
 	ctx->clkout_idx = dss_pll_get_clkout_idx_for_src(dpi->clk_src);
 
 	clkin = clk_get_rate(dpi->pll->clkin);
+	DSSDBG("clkin %lu",clkin);
 
 	if (dpi->pll->hw->type == DSS_PLL_TYPE_A) {
 		unsigned long pll_min, pll_max;
 
 		ctx->pck_min = pck - 1000;
 		ctx->pck_max = pck + 1000;
+		DSSDBG("ctx->pck_min %ld",ctx->pck_min);
+		DSSDBG("ctx->pck_max %ld",ctx->pck_max);
 
 		pll_min = 0;
 		pll_max = 0;
@@ -240,6 +244,7 @@ static bool dpi_pll_clk_calc(struct dpi_data *dpi, unsigned long pck,
 				pll_min, pll_max,
 				dpi_calc_pll_cb, ctx);
 	} else { /* DSS_PLL_TYPE_B */
+		DSSDBG("ELSE DSS_PLL_TYPE_B");
 		dss_pll_calc_b(dpi->pll, clkin, pck, &ctx->pll_cinfo);
 
 		ctx->dispc_cinfo.lck_div = 1;
@@ -247,6 +252,9 @@ static bool dpi_pll_clk_calc(struct dpi_data *dpi, unsigned long pck,
 		ctx->dispc_cinfo.lck = ctx->pll_cinfo.clkout[0];
 		ctx->dispc_cinfo.pck = ctx->dispc_cinfo.lck;
 
+		DSSDBG("ctx->dispc_cinfo.lck %ld",ctx->dispc_cinfo.lck);
+		DSSDBG("ctx->dispc_cinfo.pck %ld",ctx->dispc_cinfo.pck);
+		
 		return true;
 	}
 }
