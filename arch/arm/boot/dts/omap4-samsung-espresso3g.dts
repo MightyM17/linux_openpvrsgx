@@ -37,6 +37,29 @@
 		ranges;
 	};
 	
+	i2c-gpio-7 {
+		compatible = "i2c-gpio";
+		sda-gpios = <&gpio2 30 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&gpio2 29 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <3>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		fuel-gauge@36 {
+			compatible = "maxim,max17042";
+			reg = <0x36>;
+			pinctrl-0 = <&fuel_alert_irq>;
+			pinctrl-names = "default";
+			interrupt-parent = <&gpio2>;
+			interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
+			maxim,rsns-microohm = <10000>;
+			//maxim,cold-temp = <-50>;
+			maxim,over-heat-temp = <500>;
+			maxim,dead-volt = <2500>;
+			maxim,over-volt = <4300>;
+		};
+	};
+	
 	reg_espresso_vwlan: regulator-espresso-vwlan {
 		pinctrl-names = "default";
 		pinctrl-0 = <&wlanen_gpio>;
@@ -309,6 +332,12 @@
 	twl6030_pins: pinmux_twl6030_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x19e, WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE0)	/* sys_nirq1.sys_nirq1 */
+		>;
+	};
+	
+	fuel_alert_irq: fuel-alert-irq {
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0x068, WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE3)	/* gpmc_a20.gpio_44 */
 		>;
 	};
 };

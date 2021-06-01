@@ -743,7 +743,6 @@ static int twlreg_probe(struct platform_device *pdev)
 	 *  - SC_DETECT2 (vusb, vdac, vio, vdd1/2, vpll2)
 	 *  - IT_CONFIG
 	 */
-	dev_info(&pdev->dev, "always-on %d", c->always_on);
 	return 0;
 }
 
