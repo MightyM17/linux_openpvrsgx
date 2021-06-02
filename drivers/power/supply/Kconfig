@@ -673,6 +673,14 @@ config CHARGER_SMB347
 	help
 	  Say Y to include support for Summit Microelectronics SMB345,
 	  SMB347 or SMB358 Battery Charger.
+	  
+config CHARGER_SMB136
+	tristate "Summit Microelectronics SMB136 Battery Charger"
+	depends on I2C
+	select REGMAP_I2C
+	help
+	  Say Y to include support for Summit Microelectronics SMB136 Battery
+	  Charger.
 
 config CHARGER_TPS65090
 	tristate "TPS65090 battery charger driver"
