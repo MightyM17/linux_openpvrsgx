@@ -40,8 +40,8 @@
 
 struct smb136_charger {
 	struct i2c_client	*client;
-	struct power_supply	mains;
-	struct power_supply	usb;
+	struct power_supply	*mains;
+	struct power_supply	*usb;
 	bool			mains_online;
 	bool			usb_online;
 	bool			usb_hc_mode;
@@ -126,8 +126,7 @@ static int smb136_mains_get_property(struct power_supply *psy,
 				     enum power_supply_property prop,
 				     union power_supply_propval *val)
 {
-	struct smb136_charger *smb =
-		container_of(psy, struct smb136_charger, mains);
+	struct smb136_charger *smb = power_supply_get_drvdata(psy);
 
 	switch (prop) {
 	case POWER_SUPPLY_PROP_ONLINE:
@@ -143,8 +142,7 @@ static int smb136_mains_set_property(struct power_supply *psy,
 				     enum power_supply_property prop,
 				     const union power_supply_propval *val)
 {
-	struct smb136_charger *smb =
-		container_of(psy, struct smb136_charger, mains);
+	struct smb136_charger *smb = power_supply_get_drvdata(psy);
 	bool oldval;
 
 	switch (prop) {
@@ -177,8 +175,7 @@ static int smb136_usb_get_property(struct power_supply *psy,
 				   enum power_supply_property prop,
 				   union power_supply_propval *val)
 {
-	struct smb136_charger *smb =
-		container_of(psy, struct smb136_charger, usb);
+	struct smb136_charger *smb = power_supply_get_drvdata(psy);
 
 	switch (prop) {
 	case POWER_SUPPLY_PROP_ONLINE:
@@ -200,8 +197,7 @@ static int smb136_usb_set_property(struct power_supply *psy,
 				   const union power_supply_propval *val)
 {
 	int ret = -EINVAL;
-	struct smb136_charger *smb =
-		container_of(psy, struct smb136_charger, usb);
+	struct smb136_charger *smb = power_supply_get_drvdata(psy);
 	bool oldval;
 
 	switch (prop) {
@@ -243,13 +239,33 @@ static enum power_supply_property smb136_usb_properties[] = {
 	POWER_SUPPLY_PROP_USB_HC,
 };
 
+static const struct power_supply_desc smb136_mains_desc = {
+	.name		= "smb136-mains",
+	.type		= POWER_SUPPLY_TYPE_MAINS,
+	.get_property	= smb136_mains_get_property,
+	.set_property	= smb136_mains_set_property,
+	.property_is_writeable = smb136_mains_property_is_writeable,
+	.properties	= smb136_mains_properties,
+	.num_properties	= ARRAY_SIZE(smb136_mains_properties),
+};
+
+static const struct power_supply_desc smb136_usb_desc = {
+	.name		= "smb136-usb",
+	.type		= POWER_SUPPLY_TYPE_USB,
+	.get_property	= smb136_usb_get_property,
+	.set_property	= smb136_usb_set_property,
+	.property_is_writeable = smb136_usb_property_is_writeable,
+	.properties	= smb136_usb_properties,
+	.num_properties	= ARRAY_SIZE(smb136_usb_properties),
+};
+
 static int smb136_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
 	const struct smb136_charger_platform_data *pdata;
+	struct power_supply_config mains_usb_cfg = {};
 	struct device *dev = &client->dev;
 	struct smb136_charger *smb;
-	int ret;
 
 	pdata = dev->platform_data;
 	if (!pdata)
@@ -266,50 +282,30 @@ static int smb136_probe(struct i2c_client *client,
 	smb->client = client;
 	smb->pdata = pdata;
 
-	smb->mains.desc->name = "smb136-mains"; //HELLO YES STUFF CHANGED HERE
-	smb->mains.desc->type = POWER_SUPPLY_TYPE_MAINS;
-	smb->mains.desc->get_property = smb136_mains_get_property;
-	smb->mains.desc->set_property = smb136_mains_set_property;
-	smb->mains.desc->property_is_writeable = smb136_mains_property_is_writeable;
-	smb->mains.properties = smb136_mains_properties;
-	smb->mains.num_properties = ARRAY_SIZE(smb136_mains_properties);
+	mains_usb_cfg.drv_data = smb;
+	mains_usb_cfg.of_node = dev->of_node;
+	
+	smb->mains = devm_power_supply_register(dev, &smb136_mains_desc,
+						&mains_usb_cfg);
+	if (IS_ERR(smb->mains))
+		return PTR_ERR(smb->mains);
 
-	smb->usb.name = "smb136-usb";
-	smb->usb.type = POWER_SUPPLY_TYPE_USB;
-	smb->usb.get_property = smb136_usb_get_property;
-	smb->usb.set_property = smb136_usb_set_property;
-	smb->usb.property_is_writeable = smb136_usb_property_is_writeable;
-	smb->usb.properties = smb136_usb_properties;
-	smb->usb.num_properties = ARRAY_SIZE(smb136_usb_properties);
-
-	if (pdata->supplied_to) {
-		smb->mains.supplied_to = pdata->supplied_to;
-		smb->mains.num_supplicants = pdata->num_supplicants;
-		smb->usb.supplied_to = pdata->supplied_to;
-		smb->usb.num_supplicants = pdata->num_supplicants;
-	}
-
-	ret = power_supply_register(dev, &smb->mains);
-	if (ret < 0)
-		return ret;
-
-	ret = power_supply_register(dev, &smb->usb);
-	if (ret < 0) {
-		power_supply_unregister(&smb->mains);
-		return ret;
-	}
-
+	smb->usb = devm_power_supply_register(dev, &smb136_usb_desc,
+					      &mains_usb_cfg);
+	if (IS_ERR(smb->usb))
+		return PTR_ERR(smb->usb);
+	
 	dev_dbg(&client->dev, "probed\n");
 
 	return 0;
 }
 
-static int __devexit smb136_remove(struct i2c_client *client)
+static int smb136_remove(struct i2c_client *client)
 {
 	struct smb136_charger *smb = i2c_get_clientdata(client);
 
-	power_supply_unregister(&smb->usb);
-	power_supply_unregister(&smb->mains);
+	power_supply_unregister(smb->usb);
+	power_supply_unregister(smb->mains);
 
 	return 0;
 }
@@ -320,14 +316,22 @@ static const struct i2c_device_id smb136_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, smb136_id);
 
+static const struct of_device_id smb136_of_match[] = {
+	{ .compatible = "summit,smb136" },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, smb136_of_match);
+
+
 static struct i2c_driver smb136_i2c_driver = {
 	.driver = {
 		.owner	= THIS_MODULE,
 		.name	= "smb136",
+		.of_match_table = smb136_of_match,
 	},
 	.id_table	= smb136_id,
 	.probe	= smb136_probe,
-	.remove	= __devexit_p(smb136_remove),
+	.remove	= smb136_remove,
 	.command = NULL,
 };
 
