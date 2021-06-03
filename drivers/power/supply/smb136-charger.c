@@ -234,6 +234,20 @@ static int smb136_usb_property_is_writeable(struct power_supply *psy,
 	return 0;
 }
 
+static struct smb136_charger_platform_data
+			*smb136_get_platdata(struct device *dev)
+{
+	struct smb136_charger_platform_data *pdata;
+
+	if (dev->of_node) {
+		pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+	} else {
+		pdata = dev_get_platdata(dev);
+	}
+
+	return pdata;
+}
+
 static enum power_supply_property smb136_usb_properties[] = {
 	POWER_SUPPLY_PROP_ONLINE,
 	POWER_SUPPLY_PROP_USB_HC,
@@ -262,25 +276,29 @@ static const struct power_supply_desc smb136_usb_desc = {
 static int smb136_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
-	const struct smb136_charger_platform_data *pdata;
+	//const struct smb136_charger_platform_data *pdata;
 	struct power_supply_config mains_usb_cfg = {};
 	struct device *dev = &client->dev;
 	struct smb136_charger *smb;
 
-	pdata = dev->platform_data;
-	if (!pdata)
-		return -EINVAL;
-
 	smb = devm_kzalloc(dev, sizeof(*smb), GFP_KERNEL);
 	if (!smb)
 		return -ENOMEM;
+
+	smb->pdata = smb136_get_platdata(dev);
+	if (!smb->pdata)
+		return -ENODEV;
+
+	/*pdata = dev->platform_data;
+	if (!pdata)
+		return -EINVAL;*/
 
 	i2c_set_clientdata(client, smb);
 
 	smb136_hw_init(smb);
 
 	smb->client = client;
-	smb->pdata = pdata;
+	//smb->pdata = pdata;
 
 	mains_usb_cfg.drv_data = smb;
 	mains_usb_cfg.of_node = dev->of_node;
@@ -295,7 +313,7 @@ static int smb136_probe(struct i2c_client *client,
 	if (IS_ERR(smb->usb))
 		return PTR_ERR(smb->usb);
 	
-	dev_dbg(&client->dev, "probed\n");
+	dev_dbg(&client->dev, "smb136 probed\n");
 
 	return 0;
 }
