@@ -46,21 +46,21 @@
 			regulator-off-in-suspend;
 		};
 	};
-	
+
 	vaux2: regulator-vaux2 {
 		compatible = "ti,twl6032-ldo4";
 		regulator-min-microvolt = <2800000>;
 		regulator-max-microvolt = <2800000>;
 		regulator-always-on;
 	};
-	
+
 	ldo5: regulator-ldo5 {
 		compatible = "ti,twl6032-ldo5";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 		regulator-always-on;
 	};
-	
+
 	vcxio: regulator-vcxio {
 		compatible = "ti,twl6032-ldo6";
 		regulator-min-microvolt = <1800000>;
@@ -70,19 +70,21 @@
 			regulator-off-in-suspend;
 		};
 	};
-	
+
+	smps4: regulator-smps4 {
+		compatible = "ti,twl6032-smps4";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+
 	vusb: regulator-vusb {
-		compatible = "ti,twl6030-vusb";
+		compatible = "ti,twl6032-ldousb";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 	};
-	
-	twl_usb_comparator: usb-comparator {
-		compatible = "ti,twl6030-usb";
-		interrupts = <4>, <10>;
-	};
-	
+
 	gpadc: gpadc {
 		compatible = "ti,twl6032-gpadc";
 		interrupts = <3>;
