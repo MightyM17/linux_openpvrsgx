@@ -38,6 +38,20 @@
 		ranges;
 	};
 
+	i2c-gpio-5 {
+		compatible = "i2c-gpio";
+		sda-gpios = <&gpio4 2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&gpio4 3 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <10>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		power_supply: charger@4D {
+			compatible = "summit,smb136";
+			reg = <0x4D>;
+		};
+	};
+
 	i2c-gpio-7 {
 		compatible = "i2c-gpio";
 		sda-gpios = <&gpio2 30 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
@@ -54,7 +68,6 @@
 			interrupt-parent = <&gpio2>;
 			interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
 			maxim,rsns-microohm = <10000>;
-			//maxim,cold-temp = <-50>;
 			maxim,over-heat-temp = <500>;
 			maxim,dead-volt = <2500>;
 			maxim,over-volt = <4300>;
@@ -189,14 +202,6 @@
 				remote-endpoint = <&bridge_out>;
 			};
 		};
-	};
-
-	gp2a_shunt: current-sense-shunt {
-		compatible = "current-sense-shunt";
-		io-channels = <&gpadc 4>;
-		shunt-resistor-micro-ohms = <24000000>; /* 24 kOhm https://github.com/Unlegacy-Android/android_device_samsung_espresso/blob/aosp-6.0/libsensors/LightSensor.cpp */
-		#io-channel-cells = <0>;
-		io-channel-ranges;
 	};
 };
 
@@ -407,19 +412,6 @@
 		reset-gpios = <&gpio5 29 GPIO_ACTIVE_LOW>;
 		interrupts = <&gpio6 10 IRQ_TYPE_EDGE_RISING>;
         };
-
-	light-sensor@44 {
-		compatible = "sharp,gp2ap002a00f";
-		reg = <0x44>;
-		interrupt-parent = <&gpio1>;
-		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&ldo5>;
-		vio-supply = <&ldo5>;
-		io-channels = <&gp2a_shunt>;
-		io-channel-names = "alsout";
-		sharp,proximity-far-hysteresis = /bits/ 8 <0x40>;
-		sharp,proximity-close-hysteresis = /bits/ 8 <0x20>;
-	};
 };
 
 &dss {
