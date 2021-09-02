@@ -116,6 +116,23 @@
 		regulator-always-on;
 		enable-active-high;
 	};
+	
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_keys>;
+
+		button-volup {
+			linux,code = <115>;
+			label = "VOL+"; /* GPIO30 */
+			gpios = <&gpio1 30 GPIO_ACTIVE_LOW>;
+		};
+		button-voldown {
+			linux,code = <114>;
+			label = "VOL-"; /* GPIO8 */
+			gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
+		};
+	};
 
 	reg_lcd: regulator-lcd  {
 		compatible = "regulator-fixed";
@@ -341,6 +358,13 @@
 	fuel_alert_irq: fuel-alert-irq {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x068, WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE3)	/* gpmc_a20.gpio_44 */
+		>;
+	};
+	
+	gpio_keys: pinmux_gpio_keys {
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0x056, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
+			OMAP4_IOPAD(0x05C, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
 		>;
 	};
 };
