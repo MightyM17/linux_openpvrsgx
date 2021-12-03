@@ -235,7 +235,7 @@ static int smb136_usb_property_is_writeable(struct power_supply *psy,
 
 static int smb136_get_battery_info(struct smb136_charger *smb)
 {
-	struct smb347_charger_platform_data *pdata = (void *)smb->pdata;
+	struct smb136_charger_platform_data *pdata = (void *)smb->pdata;
 	struct power_supply_battery_info info = {};
 	struct power_supply *supply;
 	int err;
