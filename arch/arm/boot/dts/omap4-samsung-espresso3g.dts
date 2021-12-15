@@ -241,12 +241,26 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&vibrator_default>;
 	};
+
+    gp2a_shunt: current-sense-shunt {
+		compatible = "current-sense-shunt";
+		io-channels = <&gpadc 4>;
+		shunt-resistor-micro-ohms = <47000000>; /* 47 ohms */
+		#io-channel-cells = <0>;
+		io-channel-ranges;
+	};
 };
 
 &omap4_pmx_wkup {
 	twl6030_wkup_pins: pinmux_twl6030_wkup_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x56, PIN_OUTPUT_PULLUP | MUX_MODE2)	/* fref_clk3_req.sys_drm_msecure */
+		>;
+	};
+
+	prox_irq: pinmux_prox_irq {
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0x042, WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE3)
 		>;
 	};
 };
@@ -422,7 +436,7 @@
 
 	gp2a_irq: pinmux_gp2a_irq {
 		pinctrl-single,pins = <
-			OMAP4_IOPAD(0x042, WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE3)
+			OMAP4_IOPAD(0x052, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
 		>;
 	};
 };
@@ -505,26 +519,14 @@
 		reg = <0x44>;
 		interrupt-parent = <&gpio1>;
 		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&vaux2>; //
-		vio-supply = <&vaux2>; //
+		vdd-supply = <&vaux2>;
+		vio-supply = <&vaux2>;
 		io-channels = <&gp2a_shunt>;
 		io-channel-names = "alsout";
 		sharp,proximity-far-hysteresis = /bits/ 8 <0x40>;
 		sharp,proximity-close-hysteresis = /bits/ 8 <0x20>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&gp2a_irq>;
-	};
-};
-
-&gpadc {
-	status = "okay";
-
-	gp2a_shunt: current-sense-shunt {
-		compatible = "current-sense-shunt";
-		io-channels = <&gpadc 4>;
-		shunt-resistor-micro-ohms = <47000000>; /* 47 ohms */
-		#io-channel-cells = <0>;
-		io-channel-ranges;
+		pinctrl-0 = <&gp2a_irq &prox_irq>;
 	};
 };
 

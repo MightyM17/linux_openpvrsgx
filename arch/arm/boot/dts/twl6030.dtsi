@@ -97,8 +97,8 @@
 		#pwm-cells = <2>;
 	};
 
-	gpadc {
-		compatible = "ti,twl6030-gpadc";
+	gpadc: gpadc {
+		compatible = "ti,twl6032-gpadc";
 		interrupts = <3>;
 		#io-channel-cells = <1>;
 	};
