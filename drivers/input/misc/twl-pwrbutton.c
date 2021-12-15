@@ -34,7 +34,7 @@
 #define TWL4030_STS_HW_CONDITIONS 0x0f
 #define TWL6030_STS_HW_CONDITIONS 0x21
 
-static irqreturn_t powerbutton_irq(int irq, void *_pwr)
+static irqreturn_t twl_pwrbutton_irq(int irq, void *_pwr)
 {
 	struct input_dev *pwr = _pwr;
 	int err;
@@ -84,7 +84,7 @@ static int twl_pwrbutton_probe(struct platform_device *pdev)
 			REG_INT_MSK_STS_A);
 	}
 
-	err = devm_request_threaded_irq(&pwr->dev, irq, NULL, powerbutton_irq,
+	err = devm_request_threaded_irq(&pwr->dev, irq, NULL, twl_pwrbutton_irq,
 			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING |
 			IRQF_ONESHOT,
 			"twl_pwrbutton", pwr);
