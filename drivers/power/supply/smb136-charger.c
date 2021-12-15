@@ -296,12 +296,13 @@ static const struct power_supply_desc smb136_usb_desc = {
 static int smb136_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
-    printk("smb136: probe started");
 	//static char *battery[] = { "max17042-battery" };
     struct power_supply_config mains_usb_cfg = {};
 	struct device *dev = &client->dev;
 	struct smb136_charger *smb;
 	int ret;
+
+    printk("smb136: probe started");
 
 	smb = devm_kzalloc(dev, sizeof(*smb), GFP_KERNEL);
 	if (!smb)
@@ -323,29 +324,21 @@ static int smb136_probe(struct i2c_client *client,
 	smb->mains = devm_power_supply_register(dev, &smb136_mains_desc,
 						   &mains_usb_cfg);
 
-	if (IS_ERR(smb->mains)){
-        printk("smb136: mains error");
+	if (IS_ERR(smb->mains))
 		return PTR_ERR(smb->mains);
-    }
 
 	smb->usb = devm_power_supply_register(dev, &smb136_usb_desc,
 					 &mains_usb_cfg);
-	if (IS_ERR(smb->usb)){
-        printk("smb136: usb error");
+	if (IS_ERR(smb->usb))
 		return PTR_ERR(smb->usb);
-    }
 
 	ret = smb136_get_battery_info(smb);
-	if (ret){
-        printk("smb136: smb136_get_battery_info");
+	if (ret)
 		return ret;
-    }
 
     ret = smb136_hw_init(smb);
-	if (ret < 0){
-        printk("smb136: smb136_hw_init");
+	if (ret < 0)
 		return ret;
-    }
 
 	printk("smb136 probed\n");
 
