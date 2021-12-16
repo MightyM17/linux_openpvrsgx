@@ -1673,7 +1673,7 @@ config MFD_TWL4030_AUDIO
 
 config TWL6030_POWER
 	bool "TI TWL6030 power resources"
-	depends on TWL_CORE && ARM
+	depends on TWL4030_CORE && ARM
 	help
 	  Say yes here if you want to use the power resources on the
 	  TWL6030 family chips.
