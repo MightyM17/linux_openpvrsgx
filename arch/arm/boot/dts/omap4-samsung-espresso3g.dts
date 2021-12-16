@@ -413,6 +413,12 @@
 		>;
 	};
 
+	wlan_host_wake: pinmux_wlan_host_wake {
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0x0bc, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
+		>;
+	};
+
 	bluetooth_pins: pinmux_bluetooth_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x094, PIN_OUTPUT | MUX_MODE3)
@@ -603,6 +609,8 @@
 		interrupt-parent = <&gpio3>;
 		interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "host-wake";
+		pinctrl-names = "default";
+		pinctrl-0 = <&wlan_host_wake>;
 	};
 };
 
