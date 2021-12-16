@@ -20,8 +20,6 @@
  * Kenobi Lee <sungyoung.lee@lge.com> and EunYoung Cho <ey.cho@lge.com>
  */
 
-#define DEBUG
-
 #include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/regmap.h>
@@ -510,7 +508,6 @@ static int gp2ap002_probe(struct i2c_client *client,
 				dev_err(dev, "no ADC, deferring...\n");
 				return -EPROBE_DEFER;
 			}
-			printk("gp2a: the error is %d \n", gp2ap002->alsout);
 			dev_err(dev, "failed to get ALSOUT ADC channel\n");
 			return PTR_ERR(gp2ap002->alsout);
 		}
