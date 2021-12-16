@@ -643,7 +643,7 @@ int dss_set_fck_rate(struct dss_device *dss, unsigned long rate)
 {
 	int r;
 
-	DSSDBG("set fck to %lu\n", rate);
+	printk("set fck to %lu\n", rate);
 
 	r = clk_set_rate(dss->dss_clk, rate);
 	if (r)

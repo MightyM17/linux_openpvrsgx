@@ -1,0 +1,60 @@
+diff --git a/arch/arm/boot/dts/omap4-samsung-espresso3g.dts b/arch/arm/boot/dts/omap4-samsung-espresso3g.dts
+index a618a44276f1..68f983affd7b 100644
+--- a/arch/arm/boot/dts/omap4-samsung-espresso3g.dts
++++ b/arch/arm/boot/dts/omap4-samsung-espresso3g.dts
+@@ -210,7 +210,7 @@ panel {
+ 		backlight = <&backlight>;
+ 
+ 		panel-timing {
+-			clock-frequency = <28444445>;
++			clock-frequency = <56800000>;
+ 
+ 			hback-porch = <210>;
+ 			hactive = <1024>;
+@@ -413,6 +413,12 @@ OMAP4_IOPAD(0x11e, PIN_INPUT_PULLUP | MUX_MODE0)	/* uart2_tx.uart2_tx */
+ 		>;
+ 	};
+ 
++	wlan_host_wake: pinmux_wlan_host_wake {
++		pinctrl-single,pins = <
++			OMAP4_IOPAD(0x0bc, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
++		>;
++	};
++
+ 	bluetooth_pins: pinmux_bluetooth_pins {
+ 		pinctrl-single,pins = <
+ 			OMAP4_IOPAD(0x094, PIN_OUTPUT | MUX_MODE3)
+@@ -461,6 +467,11 @@ &twl6030_wkup_pins
+ 		/* SPI = 0, IRQ# = 7, 4 = active high level-sensitive */
+ 		interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>; /* IRQ_SYS_1N cascaded to gic */
+ 		interrupt-parent = <&gic>;
++
++		twl_power: power {
++			compatible = "ti,twl6030-power";
++			ti,system-power-controller;
++		};
+ 	};
+ };
+ 
+@@ -603,6 +614,8 @@ brcmf: wifi@1 {
+ 		interrupt-parent = <&gpio3>;
+ 		interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
+ 		interrupt-names = "host-wake";
++		pinctrl-names = "default";
++		pinctrl-0 = <&wlan_host_wake>;
+ 	};
+ };
+ 
+diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
+index d6a5862b4dbf..c3fb09f4e0e9 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dss.c
++++ b/drivers/gpu/drm/omapdrm/dss/dss.c
+@@ -643,7 +643,7 @@ int dss_set_fck_rate(struct dss_device *dss, unsigned long rate)
+ {
+ 	int r;
+ 
+-	DSSDBG("set fck to %lu\n", rate);
++	printk("set fck to %lu\n", rate);
+ 
+ 	r = clk_set_rate(dss->dss_clk, rate);
+ 	if (r)

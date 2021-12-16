@@ -210,7 +210,7 @@
 		backlight = <&backlight>;
 
 		panel-timing {
-			clock-frequency = <28444445>;
+			clock-frequency = <56800000>;
 
 			hback-porch = <210>;
 			hactive = <1024>;
