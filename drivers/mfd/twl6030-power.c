@@ -19,7 +19,7 @@
 
 #include <linux/module.h>
 #include <linux/pm.h>
-#include <linux/i2c/twl.h>
+#include <linux/mfd/twl.h>
 #include <linux/platform_device.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
@@ -41,7 +41,7 @@ void twl6030_power_off(void)
 		pr_err("TWL6030 Unable to power off\n");
 }
 
-static bool twl6030_power_use_poweroff(const struct twl_power_data *pdata,
+static bool twl6030_power_use_poweroff(const struct twl4030_power_data *pdata,
 	struct device_node *node)
 {
 	if (pdata && pdata->use_poweroff)
@@ -66,7 +66,7 @@ MODULE_DEVICE_TABLE(of, twl6030_power_of_match);
 
 static int twl6030_power_probe(struct platform_device *pdev)
 {
-	const struct twl_power_data *pdata = dev_get_platdata(&pdev->dev);
+	const struct twl4030_power_data *pdata = dev_get_platdata(&pdev->dev);
 	struct device_node *node = pdev->dev.of_node;
 
 	if (!pdata && !node) {
