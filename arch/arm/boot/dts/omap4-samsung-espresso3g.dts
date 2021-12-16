@@ -467,6 +467,11 @@
 		/* SPI = 0, IRQ# = 7, 4 = active high level-sensitive */
 		interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>; /* IRQ_SYS_1N cascaded to gic */
 		interrupt-parent = <&gic>;
+
+		twl_power: power {
+			compatible = "ti,twl6030-power";
+			ti,system-power-controller;
+		};
 	};
 };
 
