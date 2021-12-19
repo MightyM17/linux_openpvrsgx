@@ -675,16 +675,22 @@ static int dss_setup_default_clock(struct dss_device *dss)
 	int r;
 
 	max_dss_fck = dss->feat->fck_freq_max;
-
+    printk("FINDME: max_dss_fck is %ul", max_dss_fck);
 	if (dss->parent_clk == NULL) {
+        printk("FINDME: dss->parent_clk == NULL");
 		fck = clk_round_rate(dss->dss_clk, max_dss_fck);
+        printk("FINDME: fck is %ul", fck);
 	} else {
+        printk("FINDME: else");
 		prate = clk_get_rate(dss->parent_clk);
-
+        printk("FINDME: prate is %ul", prate);
 		fck_div = DIV_ROUND_UP(prate * dss->feat->dss_fck_multiplier,
 				max_dss_fck);
+        printk("FINDME: fck_div is %ul", fck_div);
 		fck = DIV_ROUND_UP(prate, fck_div)
 		    * dss->feat->dss_fck_multiplier;
+        printk("FINDME: dss->feat->dss_fck_multiplier is %ul", dss->feat->dss_fck_multiplier);
+        printk("FINDME: fck is %ul", fck);
 	}
 
 	r = dss_set_fck_rate(dss, fck);
