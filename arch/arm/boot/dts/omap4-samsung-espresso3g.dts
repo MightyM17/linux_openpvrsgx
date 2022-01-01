@@ -84,6 +84,7 @@
 		regulator-min-microvolt = <2000000>;
 		gpio = <&gpio4 8 GPIO_ACTIVE_HIGH>;
 		startup-delay-us = <70000>;
+		regulator-boot-on;
 		regulator-always-on;
 		enable-active-high;
 	};
@@ -163,14 +164,14 @@
 		compatible = "ti,omap-dmtimer-pwm";
 		#pwm-cells = <3>;
 		ti,timers = <&timer10>;
-		ti,clock-source = <0x01>;
+		ti,clock-source = <0x00>;
 	};
 
 	backlight: backlight {
 		compatible = "pwm-backlight";
 		pinctrl-names = "default";
 		pinctrl-0 = <&backlight_pins>;
-		pwms = <&pwm10 0 500000 0>;
+		pwms = <&pwm10 0 1200 0>;
 		power-supply = <&reg_lcd>;
 		enable-gpios = <&gpio3 31 GPIO_ACTIVE_HIGH>;
 		brightness-levels = <0 4 8 16 32 64 128 255>;
@@ -210,7 +211,7 @@
 		backlight = <&backlight>;
 
 		panel-timing {
-			clock-frequency = <56800000>;
+			clock-frequency = <42666667>;
 
 			hback-porch = <210>;
 			hactive = <1024>;
@@ -224,7 +225,7 @@
 
 			hsync-active = <0>;
 			vsync-active = <0>;
-			de-active = <0>;
+			de-active = <1>;
 			pixelclk-active = <0>;
 		};
 
@@ -277,6 +278,12 @@
 			OMAP4_IOPAD(0X0D8, PIN_OUTPUT | PIN_OFF_OUTPUT_LOW | MUX_MODE3)
 		>;
 	};
+
+	lvds_pins: pinmux_lvds_pins {
+                pinctrl-single,pins = <
+                        OMAP4_IOPAD(0X136, PIN_OUTPUT | MUX_MODE3)
+                >;
+        };
 
 	i2c1_pins: pinmux_i2c1_pins {
 		pinctrl-single,pins = <
@@ -334,7 +341,7 @@
 
 	mmc5_pins: pinmux_mmc5_pins {
 		pinctrl-single,pins = <
-			OMAP4_IOPAD(0x148, PIN_INPUT_PULLUP | MUX_MODE0)	/* sdmmc5_clk.sdmmc5_clk */
+			OMAP4_IOPAD(0x148, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* sdmmc5_clk.sdmmc5_clk */
 			OMAP4_IOPAD(0x14a, PIN_INPUT_PULLUP | MUX_MODE0)	/* sdmmc5_cmd.sdmmc5_cmd */
 			OMAP4_IOPAD(0x14c, PIN_INPUT_PULLUP | MUX_MODE0)	/* sdmmc5_dat0.sdmmc5_dat0 */
 			OMAP4_IOPAD(0x14e, PIN_INPUT_PULLUP | MUX_MODE0)	/* sdmmc5_dat1.sdmmc5_dat1 */
@@ -600,7 +607,6 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	non-removable;
 	bus-width = <4>;
 	vmmc-supply = <&reg_espresso_vwlan>;
 
