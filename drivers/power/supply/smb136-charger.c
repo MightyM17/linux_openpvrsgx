@@ -9,6 +9,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+#define DEBUG
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -22,6 +23,8 @@
 #include <linux/irq.h>
 #include <linux/interrupt.h>
 #include <linux/slab.h>
+#include <linux/battery.h>
+#include <linux/mfd/stmpe811.h>
 
 /* SMB136 Registers. */
 #define SMB136_CHARGE_CURRENT			0x00
@@ -35,7 +38,21 @@
 
 #define SMB136_COMMAND_A			0x31
 #define SMB136_STATUS_D				0x35
+
 #define SMB136_STATUS_E				0x36
+#define	CHARGE_CYCLE_COUNT_STAT				BIT(7)
+#define	CHARGER_TERM_STAT					BIT(6)
+#define	SAFETY_TIMER_STAT_MASK				((unsigned char)(((1 << 2) - 1) << 4))
+#define	CHARGER_ERROR_STAT					BIT(3)
+#define	CHARGING_STAT_E						((unsigned char)(((1 << 2) - 1) << 1))
+#define	CHARGING_EN							BIT(0)
+
+#define	NOT_CHARGING_STATUS						0x0
+#define PRE_CHARGE_STATUS						0x1
+#define FAST_CHARGE_STATUS						0x2
+#define TAPER_CHARGE_STATUS						0x3
+
+#define GPIO_TA_NCONNECTED		32
 
 struct smb136_charger {
 	struct i2c_client	*client;
@@ -47,9 +64,27 @@ struct smb136_charger {
 	const struct smb136_charger_platform_data *pdata;
 };
 
+static int smb136_i2c_read(struct i2c_client *client, u8 reg)
+{
+	int ret;
+    printk("smb136_i2c_read");
+
+	if (!client)
+		return -ENODEV;
+
+	ret = i2c_smbus_read_byte_data(client, reg);
+	if (ret < 0) {
+		dev_err(&client->dev, "%s: err %d\n", __func__, ret);
+		return -EIO;
+	}
+
+	return ret;
+}
+
 static int smb136_i2c_write(struct i2c_client *client, u8 reg, u8 data)
 {
 	int ret;
+    printk("smb136_i2c_write");
 
 	if (!client)
 		return -ENODEV;
@@ -61,35 +96,9 @@ static int smb136_i2c_write(struct i2c_client *client, u8 reg, u8 data)
 	return ret;
 }
 
-static int smb136_hw_init(struct smb136_charger *smb)
-{
-	/* Change USB5/1/HC Control from Pin to I2C */
-	smb136_i2c_write(smb->client, SMB136_PIN_ENABLE_CONTROL, 0x8);
-
-	/* Disable Automatic Input Current Limit */
-	/* Set it to 1.3A */
-	smb136_i2c_write(smb->client, SMB136_INPUT_CURRENTLIMIT, 0xE6);
-
-	/* Automatic Recharge Disabed */
-	smb136_i2c_write(smb->client, SMB136_CHARGE_CONTROL_A, 0x8c);
-
-	/* Safty timer Disabled */
-	smb136_i2c_write(smb->client, SMB136_CHARGE_CONTROL_B, 0x28);
-
-	/* Disable USB D+/D- Detection */
-	smb136_i2c_write(smb->client, SMB136_OTG_CONTROL, 0x28);
-
-	/* Set Output Polarity for STAT */
-	smb136_i2c_write(smb->client, SMB136_FLOAT_VOLTAGE, 0xCA);
-
-	/* Re-load Enable */
-	smb136_i2c_write(smb->client, SMB136_SAFTY, 0x4b);
-
-	return 0;
-}
-
 static void smb136_update_charger(struct smb136_charger *smb)
 {
+    printk("smb136_update_charger");
 	if (smb->usb_hc_mode) {
 		/* HC mode */
 		smb136_i2c_write(smb->client, SMB136_COMMAND_A, 0x8c);
@@ -126,6 +135,7 @@ static int smb136_mains_get_property(struct power_supply *psy,
 				     union power_supply_propval *val)
 {
 	struct smb136_charger *smb = power_supply_get_drvdata(psy);
+    printk("smb136_mains_get_property");
 
 	switch (prop) {
 	case POWER_SUPPLY_PROP_ONLINE:
@@ -144,6 +154,7 @@ static int smb136_mains_set_property(struct power_supply *psy,
 	struct smb136_charger *smb = power_supply_get_drvdata(psy);
 	bool oldval;
 
+    printk("smb136_mains_set_property");
 	switch (prop) {
 	case POWER_SUPPLY_PROP_ONLINE:
 		oldval = smb->mains_online;
@@ -163,6 +174,7 @@ static int smb136_mains_set_property(struct power_supply *psy,
 static int smb136_mains_property_is_writeable(struct power_supply *psy,
 					     enum power_supply_property prop)
 {
+    printk("smb136_mains_property_is_writeable");
 	return 0;
 }
 
@@ -176,6 +188,7 @@ static int smb136_usb_get_property(struct power_supply *psy,
 {
 	struct smb136_charger *smb = power_supply_get_drvdata(psy);
 
+    printk("smb136_usb_get_property");
 	switch (prop) {
 	case POWER_SUPPLY_PROP_ONLINE:
 		val->intval = smb->usb_online;
@@ -199,6 +212,7 @@ static int smb136_usb_set_property(struct power_supply *psy,
 	struct smb136_charger *smb = power_supply_get_drvdata(psy);
 	bool oldval;
 
+    printk("smb136_usb_set_property");
 	switch (prop) {
 	case POWER_SUPPLY_PROP_ONLINE:
 		oldval = smb->usb_online;
@@ -223,6 +237,7 @@ static int smb136_usb_set_property(struct power_supply *psy,
 static int smb136_usb_property_is_writeable(struct power_supply *psy,
 					    enum power_supply_property prop)
 {
+    printk("smb136_usb_property_is_writeable");
 	switch (prop) {
 	case POWER_SUPPLY_PROP_USB_HC:
 		return 1;
@@ -268,6 +283,198 @@ static struct smb136_charger_platform_data
 	return pdata;
 }
 
+static void smb136_start_charger(int cable_type)
+{
+	struct power_supply *smb_usb;
+	struct power_supply *smb_mains;
+	union power_supply_propval usb_online = { cable_type == CABLE_TYPE_USB ? 1 : 0 };
+	union power_supply_propval ac_online = { cable_type == CABLE_TYPE_AC ? 1 : 0 };
+
+    printk("smb136_start_charger, cable_type is %x", cable_type );
+	smb_usb = power_supply_get_by_name("smb136-usb");
+	smb_mains = power_supply_get_by_name("smb136-mains");
+
+	if (smb_mains) {
+        printk("if (smb_mains)");
+		smb136_mains_set_property(
+			smb_mains,
+			POWER_SUPPLY_PROP_ONLINE,
+			&ac_online);
+	}
+
+	if (smb_usb) {
+        printk("if (smb_usb)");
+		smb136_usb_set_property(
+			smb_usb,
+			POWER_SUPPLY_PROP_ONLINE,
+			&usb_online);
+		smb136_usb_set_property(
+			smb_usb,
+			POWER_SUPPLY_PROP_USB_HC,
+			&ac_online);
+	}
+}
+
+static int smb136_hw_init(struct smb136_charger *smb)
+{
+    struct power_supply *smb_usb;
+    printk("smb136_hw_init");
+	/* Change USB5/1/HC Control from Pin to I2C */
+	smb136_i2c_write(smb->client, SMB136_PIN_ENABLE_CONTROL, 0x8);
+
+	/* Disable Automatic Input Current Limit */
+	/* Set it to 1.3A */
+	smb136_i2c_write(smb->client, SMB136_INPUT_CURRENTLIMIT, 0xE6);
+
+	/* Automatic Recharge Disabed */
+	smb136_i2c_write(smb->client, SMB136_CHARGE_CONTROL_A, 0x8c);
+
+	/* Safty timer Disabled */
+	smb136_i2c_write(smb->client, SMB136_CHARGE_CONTROL_B, 0x28);
+
+	/* Disable USB D+/D- Detection */
+	smb136_i2c_write(smb->client, SMB136_OTG_CONTROL, 0x28);
+
+	/* Set Output Polarity for STAT */
+	smb136_i2c_write(smb->client, SMB136_FLOAT_VOLTAGE, 0xCA);
+
+	/* Re-load Enable */
+	smb136_i2c_write(smb->client, SMB136_SAFTY, 0x4b);
+
+    //smb136_start_charger();
+
+	return 0;
+}
+
+int espresso_cable_type = CABLE_TYPE_NONE;
+#define CABLE_DETECT_VALUE	1150
+enum espresso_adc_ch {
+	REMOTE_SENSE = 0,
+	ADC_CHECK_1,	/* TA detection */
+	ACCESSORY_ID,	/* OTG detection */
+	EAR_ADC_35,	/* Earjack detection */
+};
+#define ADC_CHANNEL_IN0		4
+#define ADC_CHANNEL_IN1		5
+#define ADC_CHANNEL_IN2		6
+#define ADC_CHANNEL_IN3		7
+#define MAX_ADC_VAL	4096
+#define MIN_ADC_VAL	0
+
+int omap4_espresso_get_adc(enum espresso_adc_ch ch)
+{
+	int adc;
+	int i;
+	int adc_tmp;
+	int adc_min = MAX_ADC_VAL;
+	int adc_max = MIN_ADC_VAL;
+	int adc_sum = 0;
+	u8 stmpe811_ch = ADC_CHANNEL_IN2;
+
+	/*if (ch == REMOTE_SENSE)
+		stmpe811_ch = ADC_CHANNEL_IN1;
+	else if (ch == ADC_CHECK_1)
+		stmpe811_ch = ADC_CHANNEL_IN2;
+	else if (ch == ACCESSORY_ID)
+		stmpe811_ch = ADC_CHANNEL_IN3;
+	else if (ch == EAR_ADC_35)
+		stmpe811_ch = ADC_CHANNEL_IN0;*/
+
+	if (ch == ADC_CHECK_1) {
+		/* HQRL Standard defines that time margin from Vbus5V detection
+		 * to ADC_CHECK_1 voltage up should be more than 400ms.
+		 */
+		msleep(400);	/* delay for unstable cable connection */
+
+		//espresso_gpio_set_for_adc_check_1();
+        gpio_set_value(154, 0);
+        gpio_set_value(60, 1);
+		msleep(150);	/* delay for slow increase of line voltage */
+
+		for (i = 0; i < 5; i++) {
+			usleep_range(5000, 5500);
+			adc_tmp = stmpe811_adc_get_value(stmpe811_ch);
+			pr_info("adc_check_1 adc=%d\n", adc_tmp);
+			adc_sum += adc_tmp;
+			if (adc_max < adc_tmp)
+				adc_max = adc_tmp;
+
+			if (adc_min > adc_tmp)
+				adc_min = adc_tmp;
+		}
+		//espresso_gpio_rel_for_adc_check_1();
+		gpio_set_value(154, 1);
+        gpio_set_value(60, 0);
+		adc = (adc_sum - adc_max - adc_min) / 3;
+	} else {
+        printk("smb136 uh not ADC_CHECK_1");
+		adc = stmpe811_adc_get_value(stmpe811_ch);
+    }
+
+	return adc;
+}
+
+int check_charger_type(void)
+{
+	int cable_type;
+	short adc;
+
+	if (gpio_is_valid(GPIO_TA_NCONNECTED) && gpio_get_value(GPIO_TA_NCONNECTED))
+		return CABLE_TYPE_NONE;
+
+	adc = omap4_espresso_get_adc(ADC_CHECK_1);
+	cable_type = adc > 750 ? //cable_type = adc > CABLE_DETECT_VALUE ?
+			CABLE_TYPE_AC :
+			CABLE_TYPE_USB;
+
+	pr_info("%s: Charger type is [%s], adc = %d\n",
+		__func__,
+		cable_type == CABLE_TYPE_AC ? "AC" : "USB",
+		adc);
+
+	return cable_type;
+}
+
+static irqreturn_t smb136_interrupt(int irq, void *smb_chip)
+{
+	struct smb136_charger *chip = smb_chip;
+    struct power_supply *smb_usb;
+	int val, reg, ret;
+
+	u8 chg_status = 0;
+
+	printk("%s\n", __func__);
+
+	msleep(100);
+
+	val = gpio_get_value(GPIO_TA_NCONNECTED);
+	if (val < 0) {
+		pr_err("usb ta_nconnected: gpio_get_value error %d\n", val);
+		return IRQ_HANDLED;
+	}
+
+	reg = SMB136_STATUS_E;
+	val = smb136_i2c_read(chip->client, reg);
+	if (val >= 0) {
+		chg_status = (u8)val;
+		pr_info("%s : reg (0x%x) = 0x%x\n", __func__, reg, chg_status);
+        smb136_start_charger(espresso_cable_type);
+	}
+	if(!val)
+        espresso_cable_type = check_charger_type();
+
+	/*if(chip->pdata->chg_intr_trigger)
+		chip->pdata->chg_intr_trigger((int)(chg_status&0x1));*/
+
+	/* clear IRQ */
+	reg = 0x30;
+	if (smb136_i2c_write(chip->client, reg, 0xff) < 0) {
+		pr_err("%s : irq clear error!\n", __func__);
+	}
+
+	return IRQ_HANDLED;
+}
+
 static enum power_supply_property smb136_usb_properties[] = {
 	POWER_SUPPLY_PROP_ONLINE,
 	POWER_SUPPLY_PROP_USB_HC,
@@ -300,7 +507,7 @@ static int smb136_probe(struct i2c_client *client,
     struct power_supply_config mains_usb_cfg = {};
 	struct device *dev = &client->dev;
 	struct smb136_charger *smb;
-	int ret;
+	int ret, irq, val;
 
     printk("smb136: probe started");
 
@@ -336,6 +543,16 @@ static int smb136_probe(struct i2c_client *client,
 	if (ret)
 		return ret;
 
+	irq = gpio_to_irq(GPIO_TA_NCONNECTED);
+	val = gpio_get_value(GPIO_TA_NCONNECTED);
+
+	ret = request_threaded_irq(client->irq, NULL, smb136_interrupt, IRQF_ONESHOT,
+			"smb136", smb);
+	if (ret < 0) {
+		printk("request irq %d failed for gpio %d\n",
+				irq, GPIO_TA_NCONNECTED);
+	}
+
     ret = smb136_hw_init(smb);
 	if (ret < 0)
 		return ret;
@@ -348,10 +565,7 @@ static int smb136_probe(struct i2c_client *client,
 static int smb136_remove(struct i2c_client *client)
 {
 	struct smb136_charger *smb = i2c_get_clientdata(client);
-
-	power_supply_unregister(smb->usb);
-	power_supply_unregister(smb->mains);
-
+    //Doesnt work :(
 	return 0;
 }
 
@@ -375,7 +589,6 @@ static struct i2c_driver smb136_i2c_driver = {
 	.id_table	= smb136_id,
 	.probe	= smb136_probe,
 	.remove	= smb136_remove,
-    .id_table = smb136_id,
 };
 
 module_i2c_driver(smb136_i2c_driver);
