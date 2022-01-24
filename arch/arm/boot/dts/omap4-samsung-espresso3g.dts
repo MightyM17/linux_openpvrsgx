@@ -21,9 +21,7 @@
 
 		ramoops_region@A0000000 {
 			no-map;
-
 			reg = <0xA0000000 0x200000>;
-
 		};
 
 		continuous_splash: framebuffer@bef00000{
@@ -47,9 +45,25 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		power_supply: charger@4D {
+		smb136: charger@4D {
 			compatible = "summit,smb136";
 			reg = <0x4D>;
+			interrupt-parent = <&gpio2>;
+			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
+		};
+	};
+
+	i2c-gpio-6 {
+		compatible = "i2c-gpio";
+		sda-gpios = <&gpio3 2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&gpio3 1 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <10>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		stmpe1: stmpe811@41 {
+			compatible = "samsung,stmpe811";
+			reg = <0x41>;
 		};
 	};
 
@@ -68,6 +82,7 @@
 			pinctrl-names = "default";
 			interrupt-parent = <&gpio2>;
 			interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
+			//power-supplies = <&smb136>;
 			maxim,rsns-microohm = <10000>;
 			maxim,over-heat-temp = <500>;
 			maxim,dead-volt = <2500>;
@@ -75,16 +90,24 @@
 		};
 	};
 
-	reg_espresso_vwlan: regulator-espresso-vwlan {
+	i2c-gpio-8 {
+		compatible = "i2c-gpio";
+		sda-gpios = <&gpio3 34 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&gpio3 35 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <3>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+
+	reg_espresso_wlan: regulator-espresso-wlan {
 		pinctrl-names = "default";
 		pinctrl-0 = <&wlanen_gpio>;
 		compatible = "regulator-fixed";
-		regulator-name = "vwl1271";
+		regulator-name = "espresso-wlan";
 		regulator-max-microvolt = <2000000>;
 		regulator-min-microvolt = <2000000>;
 		gpio = <&gpio4 8 GPIO_ACTIVE_HIGH>;
 		startup-delay-us = <70000>;
-		regulator-boot-on;
 		regulator-always-on;
 		enable-active-high;
 	};
@@ -123,25 +146,26 @@
 
 	gpio-keys {
 		compatible = "gpio-keys";
-		//pinctrl-names = "default";
-		//pinctrl-0 = <&gpio_keys>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_keys>;
 
 		power {
 			label = "power";
-			gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+
+			gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>; /* GPIO_wk3 */
 			linux,code = <KEY_POWER>;
 			wakeup-source;
 		};
 
 		button-volup {
 			linux,code = <KEY_VOLUMEUP>;
-			label = "volume_up"; /* GPIO30 */
+			label = "volume_up"; /* GPIO_wk30 */
 			gpios = <&gpio1 30 GPIO_ACTIVE_LOW>;
 		};
 
 		button-voldown {
 			linux,code = <KEY_VOLUMEDOWN>;
-			label = "volume_down"; /* GPIO8 */
+			label = "volume_down"; /* GPIO_wk8 */
 			gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
 		};
 	};
@@ -175,7 +199,7 @@
 		power-supply = <&reg_lcd>;
 		enable-gpios = <&gpio3 31 GPIO_ACTIVE_HIGH>;
 		brightness-levels = <0 4 8 16 32 64 128 255>;
-		default-brightness-level = <7>;
+		default-brightness-level = <2>;
 	};
 
 	lvds-encoder {
@@ -245,7 +269,7 @@
 
     gp2a_shunt: current-sense-shunt {
 		compatible = "current-sense-shunt";
-		io-channels = <&gpadc 4>;
+		io-channels = <&adc 4>;
 		shunt-resistor-micro-ohms = <47000000>; /* 47 ohms */
 		#io-channel-cells = <0>;
 		io-channel-ranges;
@@ -255,7 +279,15 @@
 &omap4_pmx_wkup {
 	twl6030_wkup_pins: pinmux_twl6030_wkup_pins {
 		pinctrl-single,pins = <
-			OMAP4_IOPAD(0x56, PIN_OUTPUT_PULLUP | MUX_MODE2)	/* fref_clk3_req.sys_drm_msecure */
+			OMAP4_IOPAD(0x54, PIN_OUTPUT | MUX_MODE3)	/* fref_clk0_out.sys_drm_msecure */
+		>;
+	};
+
+	gpio_keys: pinmux_gpio_keys {
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0x046, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
+			OMAP4_IOPAD(0x056, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
+			OMAP4_IOPAD(0x05C, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
 		>;
 	};
 
@@ -280,10 +312,10 @@
 	};
 
 	lvds_pins: pinmux_lvds_pins {
-                pinctrl-single,pins = <
-                        OMAP4_IOPAD(0X136, PIN_OUTPUT | MUX_MODE3)
-                >;
-        };
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0X136, PIN_OUTPUT | MUX_MODE3)
+		>;
+	};
 
 	i2c1_pins: pinmux_i2c1_pins {
 		pinctrl-single,pins = <
@@ -403,14 +435,6 @@
 		>;
 	};
 
-	/*gpio_keys: pinmux_gpio_keys {
-		pinctrl-single,pins = <
-			OMAP4_IOPAD(0x046, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
-			OMAP4_IOPAD(0x056, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
-			OMAP4_IOPAD(0x05C, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
-		>;
-	};*/
-
 	uart2_pins: pinmux_uart2_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x118, PIN_INPUT_PULLUP | MUX_MODE0)	/* uart2_cts.uart2_cts */
@@ -452,6 +476,12 @@
 			OMAP4_IOPAD(0x052, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
 		>;
 	};
+
+	/*stmpe_adc_irq: pinmux_stmpe_adc_irq {
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0x058, PIN_INPUT | MUX_MODE3)
+		>;
+	};*/
 };
 
 &i2c1 {
@@ -608,13 +638,13 @@
 	#size-cells = <0>;
 
 	bus-width = <4>;
-	vmmc-supply = <&reg_espresso_vwlan>;
+	vmmc-supply = <&reg_espresso_wlan>;
 
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc5_pins>;
 
 	brcmf: wifi@1 {
-		compatible = "brcm,bcm4330-fmac";
+		compatible = "brcm,bcm4330-fmac", "brcm,bcm4329-fmac";
 		reg = <1>;
 
 		interrupt-parent = <&gpio3>;
