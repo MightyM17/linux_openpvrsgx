@@ -80,7 +80,7 @@ deb-pkg:
 PHONY += bindeb-pkg
 bindeb-pkg:
 	$(CONFIG_SHELL) $(srctree)/scripts/package/mkdebian
-	+dpkg-buildpackage -r$(KBUILD_PKG_ROOTCMD) -a$$(cat debian/arch) $(DPKG_FLAGS) -b -nc -uc
+	+dpkg-buildpackage -d -r$(KBUILD_PKG_ROOTCMD) -a$$(cat debian/arch) $(DPKG_FLAGS) -b -nc -uc
 
 PHONY += intdeb-pkg
 intdeb-pkg:
