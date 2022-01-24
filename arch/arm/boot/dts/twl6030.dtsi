@@ -98,7 +98,7 @@
 	};
 
 	gpadc: gpadc {
-		compatible = "ti,twl6032-gpadc";
+		compatible = "ti,twl6030-gpadc";
 		interrupts = <3>;
 		#io-channel-cells = <1>;
 	};
