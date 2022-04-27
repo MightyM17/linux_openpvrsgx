@@ -270,7 +270,7 @@
     gp2a_shunt: current-sense-shunt {
 		compatible = "current-sense-shunt";
 		io-channels = <&adc 4>;
-		shunt-resistor-micro-ohms = <47000000>; /* 47 ohms */
+		shunt-resistor-micro-ohms = <24000000>; /* 47 ohms */
 		#io-channel-cells = <0>;
 		io-channel-ranges;
 	};
