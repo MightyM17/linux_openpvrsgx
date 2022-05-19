@@ -1712,6 +1712,16 @@ config MFD_TIMBERDALE
 	The timberdale FPGA can be found on the Intel Atom development board
 	for in-vehicle infontainment, called Russellville.
 
+
+config SEC_STMPE811_ADC
+	bool "Support STE STMPE written by Samsung"
+	help
+	  Support for the STMPE811 MFD just to use ADC function only for
+	  SEC-30PIN connector. This feature must be removed in the future
+	  and adc function must be replaced by MFD_STMPE feature.
+	  This function must be re-written in board files to support more
+	  generatl interface for 30-pin connector.
+
 config MFD_TC3589X
 	bool "Toshiba TC35892 and variants"
 	depends on I2C=y
