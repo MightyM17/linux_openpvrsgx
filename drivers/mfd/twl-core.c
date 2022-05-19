@@ -956,6 +956,14 @@ add_children(struct twl4030_platform_data *pdata, unsigned irq_base,
 			return PTR_ERR(child);
 	}
 
+	if (IS_ENABLED(CONFIG_TWL6030_POWER) && pdata->power) {
+		child = add_child(TWL_MODULE_PM_MASTER, "twl6030_power",
+				  pdata->power, sizeof(*pdata->power), false,
+				  0, 0);
+		if (IS_ERR(child))
+			return PTR_ERR(child);
+	}
+
 	return 0;
 }
 
