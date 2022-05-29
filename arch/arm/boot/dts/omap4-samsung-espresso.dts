@@ -435,6 +435,13 @@
 		>;
 	};
 
+	uart3_pins: pinmux_uart3_pins {
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0x144, PIN_INPUT | MUX_MODE0)		/* uart3_rx_irrx */
+			OMAP4_IOPAD(0x146, PIN_OUTPUT | MUX_MODE0)		/* uart3_tx_irtx */
+		>;
+	};
+
 	uart2_pins: pinmux_uart2_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x118, PIN_INPUT_PULLUP | MUX_MODE0)	/* uart2_cts.uart2_cts */
@@ -482,6 +489,14 @@
 			OMAP4_IOPAD(0x058, PIN_INPUT | MUX_MODE3)
 		>;
 	};*/
+};
+
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart3_pins>;
+
+	interrupts-extended = <&wakeupgen GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH
+			       &omap4_pmx_core OMAP4_UART3_RX>;
 };
 
 &i2c1 {
