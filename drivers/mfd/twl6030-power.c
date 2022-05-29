@@ -66,7 +66,7 @@ MODULE_DEVICE_TABLE(of, twl6030_power_of_match);
 
 static int twl6030_power_probe(struct platform_device *pdev)
 {
-	const struct twl4030x_power_data *pdata = dev_get_platdata(&pdev->dev);
+	const struct twl4030_power_data *pdata = dev_get_platdata(&pdev->dev);
 	struct device_node *node = pdev->dev.of_node;
 
 	if (!pdata && !node) {
