@@ -102,6 +102,11 @@
 		regulator-always-on;
 	};
 
+	clk32kaudio: regulator-clk32kaudio {
+                compatible = "ti,twl6030-clk32kaudio";
+                regulator-always-on;
+        };
+
 	gpadc {
 		compatible = "ti,twl6030-gpadc";
 		interrupts = <3>;

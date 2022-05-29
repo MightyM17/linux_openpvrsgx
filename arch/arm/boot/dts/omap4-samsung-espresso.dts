@@ -250,7 +250,8 @@
 			hsync-active = <0>;
 			vsync-active = <0>;
 			de-active = <1>;
-			pixelclk-active = <0>;
+			pixelclk-active = <1>;
+			syncclk-active = <0>;
 		};
 
 		port {
@@ -267,12 +268,40 @@
 		pinctrl-0 = <&vibrator_default>;
 	};
 
-    gp2a_shunt: current-sense-shunt {
+	gp2a_shunt: current-sense-shunt {
 		compatible = "current-sense-shunt";
 		io-channels = <&adc 4>;
 		shunt-resistor-micro-ohms = <24000000>; /* 24 ohms */
 		#io-channel-cells = <0>;
 		io-channel-ranges;
+	};
+
+	irled@0 {
+		compatible = "gpio-ir-tx";
+		gpios = <&gpio2 27 GPIO_ACTIVE_HIGH>;
+	};
+
+	sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "VF610-Tower-Sound-Card";
+		/*simple-audio-card,format = "left_j";
+		simple-audio-card,bitclock-master = <&dailink0_master>;
+		simple-audio-card,frame-master = <&dailink0_master>;
+		simple-audio-card,widgets =
+			"Microphone", "Microphone Jack",
+			"Headphone", "Headphone Jack",
+			"Speaker", "External Speaker";
+		simple-audio-card,routing =
+			"MIC_IN", "Microphone Jack",
+			"Headphone Jack", "HP_OUT",
+			"External Speaker", "LINE_OUT";
+		simple-audio-card,cpu {
+			sound-dai = <&sh_fsi2 0>;
+		};
+		dailink0_master: simple-audio-card,codec {
+			sound-dai = <&ak4648>;
+			clocks = <&osc>;
+		};*/
 	};
 };
 
@@ -524,6 +553,54 @@
 			compatible = "ti,twl6030-power";
 			ti,system-power-controller;
 		};
+	};
+
+	codec_26mhz: clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <26000000>;
+		clock-output-names = "codec_26mhz";
+	};
+
+	wm1811: audio-codec@1a {
+		compatible = "wlf,wm1811";
+		reg = <0x1a>;
+
+		#sound-dai-cells = <0>;
+
+		clocks = <&codec_26mhz>,
+			<&clk32kaudio>;
+		clock-names = "MCLK1", "MCLK2";
+
+		/*interrupt-controller;
+		#interrupt-cells = <2>;
+		interrupt-parent = <&gpio6>; //GPIO_EAR_GND_SEL
+		interrupts = <11 IRQ_TYPE_LEVEL_HIGH>;*/
+
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		//AVDD1-supply = <&buck3_reg>; //wm1811_ldo1_supplies
+		AVDD2-supply = <&smps4>; //VAP_IO_1.8V
+		DBVDD1-supply = <&smps4>; //VBATT acc to board file
+		DBVDD2-supply = <&smps4>; //VBATT acc to board file
+		DBVDD3-supply = <&smps4>; //VBATT acc to board file
+		//DCVDD-supply = <&buck3_reg>; //wm1811_ldo2_supplies
+		CPVDD-supply = <&smps4>; //VBATT acc to board file
+		//SPKVDD1-supply = <&buck3_reg>; //VBATT
+		//SPKVDD2-supply = <&buck3_reg>; //VBATT
+
+		wlf,gpio-cfg = <0x3 0x0 0x0 0x0 0x0 0x0
+			0x0 0x8000 0x0 0x0 0x0>;
+		wlf,micbias-cfg = <0x2f, 0x29>;
+
+		wlf,ldo1ena = <&gpio2 13 GPIO_ACTIVE_HIGH>;
+		wlf,ldo2ena = <&gpio2 13 GPIO_ACTIVE_HIGH>;
+		
+		wlf,ldoena-always-driven;
+		wlf,lineout1-se;
+		wlf,lineout2-se;
+		wlf,lineout1-feedback;
 	};
 };
 
