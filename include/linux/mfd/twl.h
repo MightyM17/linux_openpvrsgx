@@ -732,6 +732,7 @@ struct twl4030_platform_data {
 	struct regulator_init_data              *vcxio;
 	struct regulator_init_data              *vusb;
 	struct regulator_init_data		*clk32kg;
+ 	struct regulator_init_data              *clk32kaudio;
 	struct regulator_init_data              *v1v8;
 	struct regulator_init_data              *v2v1;
 	/* TWL6032 LDO regulators */
@@ -861,5 +862,6 @@ int twl4030_sih_setup(struct device *dev, int module, int irq_base);
 #define TWL6032_REG_SMPS4	59
 #define TWL6032_REG_VIO		60
 
+#define TWL6030_REG_CLK32KAUDIO	61
 
 #endif /* End of __TWL4030_H */
