@@ -281,27 +281,41 @@
 		gpios = <&gpio2 27 GPIO_ACTIVE_HIGH>;
 	};
 
-	sound {
+        codec_26mhz: clock {
+                compatible = "fixed-clock";
+                #clock-cells = <0>;
+                clock-frequency = <26000000>;
+                clock-output-names = "codec_26mhz";
+        };
+
+	sound: sound {
 		compatible = "simple-audio-card";
-		simple-audio-card,name = "VF610-Tower-Sound-Card";
-		/*simple-audio-card,format = "left_j";
-		simple-audio-card,bitclock-master = <&dailink0_master>;
-		simple-audio-card,frame-master = <&dailink0_master>;
+		simple-audio-card,name = "espresso-sound";
+
+		simple-audio-card,format = "i2s";
+		simple-audio-card,bitclock-master = <&link0_codec>;
+		simple-audio-card,frame-master = <&link0_codec>;
+		//simple-audio-card,mclk-fs = <512>;
+
+		//simple-audio-card,mic-det-gpio = <&gpio2 17 GPIO_ACTIVE_LOW>; //GPIO_49
+
 		simple-audio-card,widgets =
-			"Microphone", "Microphone Jack",
-			"Headphone", "Headphone Jack",
-			"Speaker", "External Speaker";
+				"Headphone", "Headphone Jack",
+				"Speaker", "Main Speaker";
+
 		simple-audio-card,routing =
-			"MIC_IN", "Microphone Jack",
-			"Headphone Jack", "HP_OUT",
-			"External Speaker", "LINE_OUT";
-		simple-audio-card,cpu {
-			sound-dai = <&sh_fsi2 0>;
+				"Headphone Jack", "HPOUTL",
+				"Headphone Jack", "HPOUTR",
+				"Main Speaker", "SPKOUTL",
+				"Main Speaker", "SPKOUTR";
+
+		link0_cpu: simple-audio-card,cpu {
+			sound-dai = <&mcbsp2>;
 		};
-		dailink0_master: simple-audio-card,codec {
-			sound-dai = <&ak4648>;
-			clocks = <&osc>;
-		};*/
+
+		link0_codec: simple-audio-card,codec {
+			sound-dai = <&wm1811>;
+		};
 	};
 };
 
@@ -518,6 +532,15 @@
 			OMAP4_IOPAD(0x058, PIN_INPUT | MUX_MODE3)
 		>;
 	};*/
+
+	mcbsp2_pins: pinmux_mcbsp2_pins {
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0xf6, PIN_INPUT | MUX_MODE0)	/* abe_mcbsp2_clkx.abe_mcbsp2_clkx */
+			OMAP4_IOPAD(0xf8, PIN_INPUT | MUX_MODE0)	/* abe_mcbsp2_dr.abe_mcbsp2_dr */
+			OMAP4_IOPAD(0xfa, PIN_OUTPUT | MUX_MODE0)	/* abe_mcbsp2_dx.abe_mcbsp2_dx */
+			OMAP4_IOPAD(0xfc, PIN_INPUT | MUX_MODE0)	/* abe_mcbsp2_fsx.abe_mcbsp2_fsx */
+		>;
+	};
 };
 
 &uart3 {
@@ -529,10 +552,8 @@
 };
 
 &i2c1 {
-	// We need i2c1 muxed early on the boot process for pmic
-	// bootloader already done it for us
-	// pinctrl-names = "default";
-	// pinctrl-0 = <&i2c1_pins>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins>;
 
 	clock-frequency = <400000>;
 
@@ -555,27 +576,14 @@
 		};
 	};
 
-	codec_26mhz: clock {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <26000000>;
-		clock-output-names = "codec_26mhz";
-	};
-
 	wm1811: audio-codec@1a {
 		compatible = "wlf,wm1811";
 		reg = <0x1a>;
 
 		#sound-dai-cells = <0>;
 
-		clocks = <&codec_26mhz>,
-			<&clk32kaudio>;
+		clocks = <&codec_26mhz>, <&clk32kaudio>;
 		clock-names = "MCLK1", "MCLK2";
-
-		/*interrupt-controller;
-		#interrupt-cells = <2>;
-		interrupt-parent = <&gpio6>; //GPIO_EAR_GND_SEL
-		interrupts = <11 IRQ_TYPE_LEVEL_HIGH>;*/
 
 		gpio-controller;
 		#gpio-cells = <2>;
@@ -592,7 +600,7 @@
 
 		wlf,gpio-cfg = <0x3 0x0 0x0 0x0 0x0 0x0
 			0x0 0x8000 0x0 0x0 0x0>;
-		wlf,micbias-cfg = <0x2f, 0x29>;
+		wlf,micbias-cfg = <0x2f 0x29>;
 
 		wlf,ldo1ena = <&gpio2 13 GPIO_ACTIVE_HIGH>;
 		wlf,ldo2ena = <&gpio2 13 GPIO_ACTIVE_HIGH>;
@@ -762,4 +770,12 @@
 		interrupt-parent = <&gpio3>;
 		interrupts = <19 IRQ_TYPE_EDGE_FALLING>;
 	};
+};
+
+
+&mcbsp2 {
+	#sound-dai-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcbsp2_pins>;
+	status = "okay";
 };

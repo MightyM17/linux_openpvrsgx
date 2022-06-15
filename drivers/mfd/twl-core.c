@@ -20,6 +20,7 @@
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/clk.h>
+#include <linux/clk-provider.h>
 #include <linux/err.h>
 #include <linux/device.h>
 #include <linux/of.h>
@@ -1009,6 +1010,8 @@ static void clocks_init(struct device *dev,
 	struct clk *osc;
 	u32 rate;
 	u8 ctrl = HFCLK_FREQ_26_MHZ;
+
+	//of_clk_init(NULL);
 
 	osc = clk_get(dev, "fck");
 	if (IS_ERR(osc)) {

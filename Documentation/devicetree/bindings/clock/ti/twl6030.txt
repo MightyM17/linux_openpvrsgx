@@ -1,0 +1,4 @@
+Binding for TI TWL6030.
+
+Required properties:
+- compatible: "ti,twl6030-clk32kg"

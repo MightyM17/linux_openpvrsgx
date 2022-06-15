@@ -1845,6 +1845,7 @@ config SND_SOC_WM8993
 	depends on I2C
 
 config SND_SOC_WM8994
+	default y
 	tristate
 
 config SND_SOC_WM8995

@@ -14,6 +14,7 @@ obj-$(CONFIG_ARCH_OMAP3)		+= $(clk-common) interface.o \
 					   clk-3xxx.o dpll3xxx.o
 obj-$(CONFIG_ARCH_OMAP4)		+= $(clk-common) clk-44xx.o \
 					   dpll3xxx.o dpll44xx.o
+obj-$(CONFIG_CLK_TWL6030) 		+= $(clk-common) clk-6030.o
 obj-$(CONFIG_SOC_OMAP5)			+= $(clk-common) clk-54xx.o \
 					   dpll3xxx.o dpll44xx.o
 obj-$(CONFIG_SOC_DRA7XX)		+= $(clk-common) clk-7xx.o \

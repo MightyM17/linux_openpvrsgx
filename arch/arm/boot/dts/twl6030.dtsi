@@ -102,10 +102,24 @@
 		regulator-always-on;
 	};
 
-	clk32kaudio: regulator-clk32kaudio {
+	/*clk32kaudio: regulator-clk32kaudio {
                 compatible = "ti,twl6030-clk32kaudio";
                 regulator-always-on;
-        };
+        };*/
+
+        /*clk32kg: clk32kg {
+                compatible = "ti,twl6030-clk32kg";
+                #clock-cells = <0>;
+                clock-frequency = <32768>;
+        	clock-output-names = "clk32kg";
+        };*/
+
+	clk32kaudio: clk32kaudio {
+                compatible = "ti,twl6030-clk32kaudio";
+                #clock-cells = <0>;
+                clock-frequency = <32768>;
+        	clock-output-names = "clk32kaudio";
+	};
 
 	gpadc {
 		compatible = "ti,twl6030-gpadc";
