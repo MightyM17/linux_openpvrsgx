@@ -197,25 +197,6 @@
 	};
 	
 	
-	/*
-	static struct omap_dss_device espresso10_lcd_config = {
-		.panel = {
-			.timings	= {
-				.x_res		= 1280,
-				.y_res		= 800,
-				.pixel_clock	= 69818,  // closest to 69000
-				.hfp		= 16,
-				.hsw		= 48,
-				.hbp		= 64,
-				.vfp		= 16,
-				.vsw		= 3,
-				.vbp		= 11,
-			},
-			.width_in_um	= 216960,
-			.height_in_um	= 135600,
-		},
-	};
-	*/
 	
 	panel {
 		compatible ="samsung,ltn070nl01", "panel-lvds";
@@ -502,43 +483,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c3_pins>;
 
-	/*
-	from old dts espresso3g. espresso10 uses Synaptics S7301 Touchscreen
-
-	touchscreen@48 {
-		compatible = "melfas,mms136";
-		reg = <0x48>;
-		interrupt-parent = <&gpio2>;
-		interrupts = <14 IRQ_TYPE_EDGE_FALLING>;
-		touchscreen-size-x = <1279>;
-		touchscreen-size-y = <799>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&touch_pins>;
-		avdd-supply = <&reg_touch_ldo_en>;
-		vdd-supply = <&vcxio>;
-	};
-
-
-	#define REG_INTERRUPT_STATUS            0x14
-
-	#define REG_DEVICE_STATUS               0x13
-	#define REG_FINGER_STATUS               0x15
-	#define REG_POINT_INFO                  0x18
-
-	#define TS_MAX_Z_TOUCH                  255
-	#define TS_MAX_W_TOUCH                  100
-
-	if (board_is_espresso10()) {
-		espresso_ts_pdata.fw_name = "synaptics/p5100.fw";
-		espresso_ts_pdata.fw_info = &espresso10_tsp_fw_info,
-		espresso_ts_pdata.rx_channel_no	= 42,
-		espresso_ts_pdata.tx_channel_no	= 27,
-		espresso_ts_pdata.x_pixel_size	= 1279,
-		espresso_ts_pdata.y_pixel_size	= 799,
-		panel_id += 2;
-	}
-
-	*/
 
 	touchscreen: synaptics-rmi4-i2c@20 {
 		compatible = "syna,rmi4-i2c";
