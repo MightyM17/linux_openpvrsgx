@@ -4,6 +4,7 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/input/input.h>
 #include "omap443x.dtsi"
+#include <dt-bindings/power/summit,smb347-charger.h>
 
 / {
 	model = "Samsung Galaxy Tab 2 10-inch";
@@ -38,14 +39,42 @@
 		#size-cells = <1>;
 		ranges;
 	};
-
+	
 	i2c-gpio-5 {
 		compatible = "i2c-gpio";
+		
 		sda-gpios = <&gpio4 2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		scl-gpios = <&gpio4 3 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		i2c-gpio,delay-us = <10>;
 		#address-cells = <1>;
 		#size-cells = <0>;
+		
+		smb347: charger@6 {
+			compatible = "summit,smb347";
+			reg = <0x6>; // 0x0C >> 1
+			
+			interrupt-parent = <&gpio2>;
+			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
+
+			summit,enable-usb-charging;
+			summit,enable-charge-control = <SMB3XX_CHG_ENABLE_SW>;
+			summit,chip-temperature-threshold-celsius = <120>;
+			summit,usb-current-limit-microamp = <1800000>;
+		};
+	};
+
+	i2c-gpio-6 {
+		compatible = "i2c-gpio";
+		sda-gpios = <&gpio3 2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&gpio3 1 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <10>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		
+		stmpe1: stmpe811@41 {
+			compatible = "samsung,stmpe811";
+			reg = <0x41>;
+		};
 	};
 
 	i2c-gpio-7 {
@@ -207,8 +236,8 @@
 		backlight = <&backlight>;
 
 		panel-timing {
-			clock-frequency = <56888889>;
-	
+			clock-frequency = <69818000>;
+			
 			hback-porch = <64>;
 			hactive = <1280>;
 			hfront-porch = <16>;
