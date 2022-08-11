@@ -46,6 +46,28 @@
 		i2c-gpio,delay-us = <10>;
 		#address-cells = <1>;
 		#size-cells = <0>;
+
+ 		smb136: charger@4D {
+			compatible = "summit,smb136";
+			reg = <0x4D>;
+			interrupt-parent = <&gpio2>;
+			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
+		};
+
+	};
+
+	i2c-gpio-6 {
+		compatible = "i2c-gpio";
+		sda-gpios = <&gpio3 2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&gpio3 1 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <10>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		
+		stmpe1: stmpe811@41 {
+			compatible = "samsung,stmpe811";
+			reg = <0x41>;
+		};
 	};
 
 	i2c-gpio-7 {
@@ -68,6 +90,15 @@
 			maxim,dead-volt = <2500>;
 			maxim,over-volt = <4300>;
 		};
+	};
+
+	i2c-gpio-8 {
+		compatible = "i2c-gpio";
+		sda-gpios = <&gpio3 34 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&gpio3 35 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <3>;
+		#address-cells = <1>;
+		#size-cells = <0>;
 	};
 
 	reg_espresso_vwlan: regulator-espresso-vwlan {
