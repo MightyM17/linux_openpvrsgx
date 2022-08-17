@@ -90,14 +90,14 @@
 		};
 	};
 
-	i2c-gpio-8 {
+	/*i2c-gpio-8 {
 		compatible = "i2c-gpio";
 		sda-gpios = <&gpio3 34 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		scl-gpios = <&gpio3 35 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		i2c-gpio,delay-us = <3>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-	};
+	};*/
 
 	reg_espresso_wlan: regulator-espresso-wlan {
 		pinctrl-names = "default";

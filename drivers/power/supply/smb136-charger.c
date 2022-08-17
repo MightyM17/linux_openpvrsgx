@@ -443,15 +443,17 @@ static irqreturn_t smb136_interrupt(int irq, void *smb_chip)
 		return IRQ_HANDLED;
 	}
 
+	espresso_cable_type = check_charger_type();
+
 	reg = SMB136_STATUS_E;
 	val = smb136_i2c_read(chip->client, reg);
 	if (val >= 0) {
 		chg_status = (u8)val;
 		pr_info("%s : reg (0x%x) = 0x%x\n", __func__, reg, chg_status);
-        smb136_start_charger(espresso_cable_type);
+        	smb136_start_charger(espresso_cable_type);
 	}
 	if(!val)
-        espresso_cable_type = check_charger_type();
+        	espresso_cable_type = check_charger_type();
 
 	/*if(chip->pdata->chg_intr_trigger)
 		chip->pdata->chg_intr_trigger((int)(chg_status&0x1));*/

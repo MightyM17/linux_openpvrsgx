@@ -12,6 +12,7 @@
 
 #include <linux/module.h>
 #include <linux/of.h>
+#include <linux/clk.h>
 #include <linux/clkdev.h>
 #include <linux/clk-provider.h>
 #include <linux/mfd/twl.h>
@@ -25,15 +26,13 @@ struct twl6030_desc {
 static int twl6030_clk32kaudio_prepare(struct clk_hw *hw)
 {
         int ret;
-	printk("prepare began");
+	printk("twl6030_clk32kaudio_prepare prepare began\n");
         ret = twl_i2c_write_u8(TWL_MODULE_PM_RECEIVER,
                         TWL6030_GRP_CON << TWL6030_CFG_STATE_GRP_SHIFT |
                         TWL6030_CFG_STATE_ON,
                         TWL6030_PM_RECEIVER_CLK32KAUDIO_CFG_STATE);
-
+	printk("twl6030_clk32kaudio_prepare ended returned %d\n", ret);
         return ret;
-	printk("prepare ended");
-	return true;
 }
 
 void twl6030_clk32kaudio_unprepare(struct clk_hw *hw)
@@ -42,7 +41,7 @@ void twl6030_clk32kaudio_unprepare(struct clk_hw *hw)
                 TWL6030_GRP_CON << TWL6030_CFG_STATE_GRP_SHIFT |
                 TWL6030_CFG_STATE_OFF,
                 TWL6030_PM_RECEIVER_CLK32KAUDIO_CFG_STATE);
-	printk("unprepare ended");
+	printk("twl6030_clk32kaudio_unprepare ended\n");
 }
 
 static int twl6030_clk32kaudio_is_prepared(struct clk_hw *hw)
@@ -52,15 +51,22 @@ static int twl6030_clk32kaudio_is_prepared(struct clk_hw *hw)
         twl_i2c_read_u8(TWL_MODULE_PM_RECEIVER, &is_prepared,
         TWL6030_PM_RECEIVER_CLK32KAUDIO_CFG_STATE);
 
+	printk("twl6030_clk32kaudio_is_prepared ended returned %d\n",is_prepared & TWL6030_CFG_STATE_ON);
         return is_prepared & TWL6030_CFG_STATE_ON;
-	printk("isprepare ended");
-	return true;
+}
+
+static unsigned long twl6030_clk32kaudio_recalc_rate(struct clk_hw *hw,
+						unsigned long parent_rate)
+{
+	printk("twl6030_clk32kaudio_recalc_rate ended\n");
+	return 32768;
 }
 
 static const struct clk_ops twl6030_clk32kaudio_ops = {
         .prepare = twl6030_clk32kaudio_prepare,
         .unprepare = twl6030_clk32kaudio_unprepare,
         .is_prepared = twl6030_clk32kaudio_is_prepared,
+	.recalc_rate = twl6030_clk32kaudio_recalc_rate,
 };
 
 static void __init of_ti_twl6030_clk32kaudio_setup(struct device_node *node)
@@ -116,6 +122,44 @@ err_clk_hw:
         kfree(clk_hw);
 }
 CLK_OF_DECLARE(of_ti_twl6030_clk32kaudio, "ti,twl6030-clk32kaudio", of_ti_twl6030_clk32kaudio_setup);
+
+static int of_twl6030_clk32kaudio_probe(struct platform_device *pdev)
+{
+	struct device_node *node = pdev->dev.of_node;
+	struct clk *clk;
+
+	printk("clk32kaudio probe started\n");
+	if (!node)
+	{
+		printk("clk32kaudio No node\n");
+ 		return -ENODEV;
+	}
+
+	clk = devm_clk_get(&pdev->dev, "clk32kaudio");
+	if (IS_ERR(clk))
+	{
+		printk("clk32kaudio clk error %ld\n",PTR_ERR(clk));
+		return PTR_ERR(clk);
+	}
+
+	return clk_prepare(clk);
+}
+
+static struct of_device_id of_twl6030_clk32kaudio_match_tbl[] = {
+	{ .compatible = "ti,twl6030-clk32kaudio", },
+	{},
+};
+MODULE_DEVICE_TABLE(of, of_twl6030_clk32kaudio_match_tbl);
+
+static struct platform_driver twl6030_clk_driver = {
+	.driver = {
+		.name = "twl6030-clk32kaudio",
+		.owner = THIS_MODULE,
+		.of_match_table = of_twl6030_clk32kaudio_match_tbl,
+	},
+	.probe = of_twl6030_clk32kaudio_probe,
+};
+module_platform_driver(twl6030_clk_driver);
 
 MODULE_AUTHOR("Stefan Assmann <sassmann-llIHtaV5axyzQB+***@public.gmane.org>");
 MODULE_DESCRIPTION("clock driver for TI SoC based boards with twl6030");
