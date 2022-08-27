@@ -112,20 +112,6 @@ enum twl6030_module_ids {
 #define REG_INT_MSK_STS_B		0x07
 #define REG_INT_MSK_STS_C		0x08
 
-/* TWL6030 register values for CFG_STATE */
-#define TWL6030_GRP_APP (1 << 0)
-#define TWL6030_GRP_CON (1 << 1)
-#define TWL6030_GRP_MOD (1 << 2)
-#define TWL6030_CFG_STATE_OFF 0x00
-#define TWL6030_CFG_STATE_ON 0x01
-#define TWL6030_CFG_STATE_OFF2 0x02
-#define TWL6030_CFG_STATE_SLEEP 0x03
-#define TWL6030_CFG_STATE_GRP_SHIFT 5
-#define TWL6030_CFG_STATE_APP_SHIFT 2
-#define TWL6030_CFG_STATE_APP_MASK (0x03 << TWL6030_CFG_STATE_APP_SHIFT)
-#define TWL6030_CFG_STATE_APP(v) (((v) & TWL6030_CFG_STATE_APP_MASK) >>\
- TWL6030_CFG_STATE_APP_SHIFT)
-
 /* MASK INT REG GROUP A */
 #define TWL6030_PWRON_INT_MASK		0x01
 #define TWL6030_PWR_INT_MASK 		0x07
@@ -473,12 +459,6 @@ static inline int twl6030_mmc_card_detect(struct device *dev, int slot)
 #define TWL4030_PM_MASTER_KEY_TST2		0x0e
 
 #define TWL4030_PM_MASTER_GLOBAL_TST		0xb6
-
-/*
- * PM Receiver module register offsets (use TWL_MODULE_PM_RECEIVER)
- */
-
-#define TWL6030_PM_RECEIVER_CLK32KAUDIO_CFG_STATE 0x91
 
 /*----------------------------------------------------------------------*/
 

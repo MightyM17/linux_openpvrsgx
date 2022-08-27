@@ -286,6 +286,16 @@
                 #clock-cells = <0>;
                 clock-frequency = <26000000>;
                 clock-output-names = "codec_26mhz";
+                pinctrl-names = "default";
+                pinctrl-0 = <&codec_26mhz_pins>;
+                enable-gpios = <&gpio4 5 GPIO_ACTIVE_HIGH>;
+        };
+
+        codec_32kaudio: clock {
+                compatible = "fixed-clock";
+                #clock-cells = <0>;
+                clock-frequency = <32768>;
+                clock-output-names = "codec_32kaudio";
         };
 
 	sound: sound {
@@ -533,6 +543,12 @@
 		>;
 	};*/
 
+        codec_26mhz_pins: pinmux_codec_26mhz_pins {
+                pinctrl-single,pins = <
+                        OMAP4_IOPAD(0x090, PIN_OUTPUT | MUX_MODE3)
+                >;
+        };
+
 	mcbsp2_pins: pinmux_mcbsp2_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0xf6, PIN_INPUT | MUX_MODE0)	/* abe_mcbsp2_clkx.abe_mcbsp2_clkx */
@@ -582,7 +598,7 @@
 
 		#sound-dai-cells = <0>;
 
-		clocks = <&codec_26mhz>, <&clk32kaudio>;
+		clocks = <&codec_26mhz>, <&codec_32kaudio>;
 		clock-names = "MCLK1", "MCLK2";
 
 		gpio-controller;

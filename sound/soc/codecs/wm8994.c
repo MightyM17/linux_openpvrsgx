@@ -4635,31 +4635,12 @@ static int wm8994_probe(struct platform_device *pdev)
 	wm8994->mclk[WM8994_MCLK1].id = "MCLK1";
 	wm8994->mclk[WM8994_MCLK2].id = "MCLK2";
 
-	/*ret = devm_clk_bulk_get_optional(pdev->dev.parent, ARRAY_SIZE(wm8994->mclk),
-					 wm8994->mclk);*/
-	wm8994->mclk[0].clk = NULL;
-	wm8994->mclk[1].clk = NULL;
-
-	printk("FINDME started mclk1 26MHZ clk\n");
-	wm8994->mclk[0].clk = clk_get(pdev->dev.parent, wm8994->mclk[WM8994_MCLK1].id);
-	if (IS_ERR(wm8994->mclk[0].clk)) {
-		ret = PTR_ERR(wm8994->mclk[0].clk);
-		wm8994->mclk[0].clk = NULL;
-		dev_err(&pdev->dev, "Failed to get clocks mclk1 26MHZ: %d\n", ret);
-		//printk("FINDME Failed to get clocks mclk1: %d\n", ret);
+	ret = devm_clk_bulk_get_optional(pdev->dev.parent, ARRAY_SIZE(wm8994->mclk),
+					 wm8994->mclk);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "Failed to get clocks: %d\n", ret);
 		return ret;
 	}
-
-	printk("FINDME mclk2 clk32kaudio began\n");
-	wm8994->mclk[1].clk = clk_get(pdev->dev.parent, wm8994->mclk[WM8994_MCLK2].id);
-        if (IS_ERR(wm8994->mclk[1].clk)) {
-                ret = PTR_ERR(wm8994->mclk[1].clk);
-                wm8994->mclk[1].clk = NULL;
-		//printk("FINDME Failed to get clocks mclk2: %d\n", ret);
-                dev_err(&pdev->dev, "Failed to get clocks mclk2 clk32kaudio: %d\n", ret);
-                return ret;
-        }
-	printk("FINDME success\n");
 
 	pm_runtime_enable(&pdev->dev);
 	pm_runtime_idle(&pdev->dev);

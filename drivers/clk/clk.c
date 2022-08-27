@@ -4929,17 +4929,12 @@ struct clk_hw *of_clk_get_hw(struct device_node *np, int index,
 	struct clk_hw *hw;
 	struct of_phandle_args clkspec;
 
-	printk("of_clk_get_hw stared\n");
 	ret = of_parse_clkspec(np, index, con_id, &clkspec);
 	if (ret)
-	{
-		printk("of_clk_get_hw error %ld\n", ERR_PTR(ret));
 		return ERR_PTR(ret);
-	}
 
 	hw = of_clk_get_hw_from_clkspec(&clkspec);
 	of_node_put(clkspec.np);
-	printk("of_clk_get_hw success\n");
 	return hw;
 }
 
