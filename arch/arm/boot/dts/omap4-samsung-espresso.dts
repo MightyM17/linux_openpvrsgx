@@ -4,6 +4,7 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/input/input.h>
 #include "omap443x.dtsi"
+//#include "omap4-mcpdm.dtsi"
 
 / {
 	model = "Samsung Galaxy Tab 2 3g 7-inch";
@@ -320,7 +321,7 @@
 				"Main Speaker", "SPKOUTR";
 
 		link0_cpu: simple-audio-card,cpu {
-			sound-dai = <&mcbsp2>;
+			sound-dai = <&mcbsp3>;
 		};
 
 		link0_codec: simple-audio-card,codec {
@@ -549,12 +550,12 @@
                 >;
         };
 
-	mcbsp2_pins: pinmux_mcbsp2_pins {
+	mcbsp3_pins: pinmux_mcbsp3_pins {
 		pinctrl-single,pins = <
-			OMAP4_IOPAD(0xf6, PIN_INPUT | MUX_MODE0)	/* abe_mcbsp2_clkx.abe_mcbsp2_clkx */
-			OMAP4_IOPAD(0xf8, PIN_INPUT | MUX_MODE0)	/* abe_mcbsp2_dr.abe_mcbsp2_dr */
-			OMAP4_IOPAD(0xfa, PIN_OUTPUT | MUX_MODE0)	/* abe_mcbsp2_dx.abe_mcbsp2_dx */
-			OMAP4_IOPAD(0xfc, PIN_INPUT | MUX_MODE0)	/* abe_mcbsp2_fsx.abe_mcbsp2_fsx */
+			OMAP4_IOPAD(0x106, PIN_INPUT | MUX_MODE1)	
+			OMAP4_IOPAD(0x108, PIN_OUTPUT | MUX_MODE1)	
+			OMAP4_IOPAD(0x10a, PIN_INPUT | MUX_MODE1)	
+			OMAP4_IOPAD(0x10c, PIN_INPUT | MUX_MODE1)	
 		>;
 	};
 };
@@ -789,9 +790,9 @@
 };
 
 
-&mcbsp2 {
+&mcbsp3 {
 	#sound-dai-cells = <0>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&mcbsp2_pins>;
+	pinctrl-0 = <&mcbsp3_pins>;
 	status = "okay";
 };
