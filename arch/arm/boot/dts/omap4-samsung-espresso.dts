@@ -4,7 +4,6 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/input/input.h>
 #include "omap443x.dtsi"
-//#include "omap4-mcpdm.dtsi"
 
 / {
 	model = "Samsung Galaxy Tab 2 3g 7-inch";
@@ -83,7 +82,6 @@
 			pinctrl-names = "default";
 			interrupt-parent = <&gpio2>;
 			interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
-			//power-supplies = <&smb136>;
 			maxim,rsns-microohm = <10000>;
 			maxim,over-heat-temp = <500>;
 			maxim,dead-volt = <2500>;
@@ -91,23 +89,14 @@
 		};
 	};
 
-	/*i2c-gpio-8 {
-		compatible = "i2c-gpio";
-		sda-gpios = <&gpio3 34 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-		scl-gpios = <&gpio3 35 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-		i2c-gpio,delay-us = <3>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-	};*/
-
 	reg_espresso_wlan: regulator-espresso-wlan {
 		pinctrl-names = "default";
 		pinctrl-0 = <&wlanen_gpio>;
 		compatible = "regulator-fixed";
-		regulator-name = "espresso-wlan";
+		regulator-name = "espresso_wlan";
 		regulator-max-microvolt = <2000000>;
 		regulator-min-microvolt = <2000000>;
-		gpio = <&gpio4 8 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio4 8 GPIO_ACTIVE_HIGH>; /* GPIO_104 */
 		startup-delay-us = <70000>;
 		regulator-always-on;
 		enable-active-high;
@@ -118,7 +107,7 @@
 		regulator-name = "eMMC_LDO";
 		regulator-max-microvolt = <1800000>;
 		regulator-min-microvolt = <1800000>;
-		gpios = <&gpio2 21 GPIO_ACTIVE_HIGH>;
+		gpios = <&gpio2 21 GPIO_ACTIVE_HIGH>; /* GPIO_63 */
 		startup-delay-us = <100000>;
 		regulator-boot-on;
 		regulator-always-on;
@@ -127,10 +116,10 @@
 
 	reg_espresso_external: regulator-espresso-external {
 		compatible = "regulator-fixed";
-		regulator-name = "vmmc2";
+		regulator-name = "vmmc1";
 		regulator-max-microvolt = <2800000>;
 		regulator-min-microvolt = <2800000>;
-		gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
+		gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>; /* GPIO_34 */
 		regulator-always-on;
 		enable-active-high;
 	};
@@ -140,7 +129,7 @@
 		regulator-name = "touch_ldo_en";
 		regulator-max-microvolt = <2800000>;
 		regulator-min-microvolt = <2800000>;
-		gpios = <&gpio2 22 GPIO_ACTIVE_HIGH>;
+		gpios = <&gpio2 22 GPIO_ACTIVE_HIGH>; /* GPIO_54 */
 		regulator-always-on;
 		enable-active-high;
 	};
@@ -174,18 +163,16 @@
 	reg_lcd: regulator-lcd  {
 		compatible = "regulator-fixed";
 		regulator-name = "lcd_en";
-		gpios = <&gpio5 7 GPIO_ACTIVE_HIGH>;
+		gpios = <&gpio5 7 GPIO_ACTIVE_HIGH>; /* GPIO_135 */
 		regulator-max-microvolt = <3300000>;
 		regulator-min-microvolt = <3300000>;
 		enable-active-high;
-		//regulator-always-on;
 		regulator-boot-on;
 	};
 
 	pwm10: dmtimer-pwm@10 {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm10_default>;
-
 		compatible = "ti,omap-dmtimer-pwm";
 		#pwm-cells = <3>;
 		ti,timers = <&timer10>;
@@ -198,14 +185,14 @@
 		pinctrl-0 = <&backlight_pins>;
 		pwms = <&pwm10 0 1200 0>;
 		power-supply = <&reg_lcd>;
-		enable-gpios = <&gpio3 31 GPIO_ACTIVE_HIGH>;
-		brightness-levels = <0 4 8 16 32 64 128 255>;
+		enable-gpios = <&gpio3 31 GPIO_ACTIVE_HIGH>; /* GPIO_95 */
+		brightness-levels = <0 4 8 16 32 64 128 255>; //Need interpolation?
 		default-brightness-level = <2>;
 	};
 
 	lvds-encoder {
 		compatible = "lvds-encoder", "doestek,dtc34lm85am";
-		powerdown-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
+		powerdown-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>; /* GPIO_136 */
 		power-supply = <&reg_lcd>;
 		ports {
 			#address-cells = <1>;
@@ -236,7 +223,7 @@
 		backlight = <&backlight>;
 
 		panel-timing {
-			clock-frequency = <47255554>; //42666667
+			clock-frequency = <47255554>; //56888889 ideally for 60Hz
 
 			hback-porch = <210>;
 			hactive = <1024>;
@@ -264,7 +251,7 @@
 
 	vibrator {
 		compatible = "gpio-vibrator";
-		enable-gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
+		enable-gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>; /* GPIO_38 */
 		pinctrl-names = "default";
 		pinctrl-0 = <&vibrator_default>;
 	};
@@ -273,13 +260,15 @@
 		compatible = "current-sense-shunt";
 		io-channels = <&adc 4>;
 		shunt-resistor-micro-ohms = <24000000>; /* 24 ohms */
+		/* https://github.com/LineageOS/android_device_samsung_espressowifi/blob/cm-14.1/libsensors/LightSensor.cpp#L152 */
 		#io-channel-cells = <0>;
 		io-channel-ranges;
 	};
 
+	/* UNTESTED */
 	irled@0 {
 		compatible = "gpio-ir-tx";
-		gpios = <&gpio2 27 GPIO_ACTIVE_HIGH>;
+		gpios = <&gpio2 27 GPIO_ACTIVE_HIGH>; /* GPIO_59 */
 	};
 
         codec_26mhz: clock {
@@ -289,9 +278,10 @@
                 clock-output-names = "codec_26mhz";
                 pinctrl-names = "default";
                 pinctrl-0 = <&codec_26mhz_pins>;
-                enable-gpios = <&gpio4 5 GPIO_ACTIVE_HIGH>;
+                enable-gpios = <&gpio4 5 GPIO_ACTIVE_HIGH>; /* GPIO_101 */
         };
 
+	/* Fake clock, as clk32kaudio is modelled as a regulator in downstream */
         codec_32kaudio: clock {
                 compatible = "fixed-clock";
                 #clock-cells = <0>;
@@ -311,14 +301,11 @@
 		//simple-audio-card,mic-det-gpio = <&gpio2 17 GPIO_ACTIVE_LOW>; //GPIO_49
 
 		simple-audio-card,widgets =
-				"Headphone", "Headphone Jack",
 				"Speaker", "Main Speaker";
 
 		simple-audio-card,routing =
-				"Headphone Jack", "HPOUTL",
-				"Headphone Jack", "HPOUTR",
-				"Main Speaker", "SPKOUTL",
-				"Main Speaker", "SPKOUTR";
+				"Main Speaker", "SPKL",
+				"Main Speaker", "SPKR";
 
 		link0_cpu: simple-audio-card,cpu {
 			sound-dai = <&mcbsp3>;
@@ -339,15 +326,15 @@
 
 	gpio_keys: pinmux_gpio_keys {
 		pinctrl-single,pins = <
-			OMAP4_IOPAD(0x046, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
-			OMAP4_IOPAD(0x056, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
-			OMAP4_IOPAD(0x05C, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
+			OMAP4_IOPAD(0x046, WAKEUP_EN | PIN_INPUT | MUX_MODE3) /* sim_cd.gpio_wk3 - EXT_WAKEUP */
+			OMAP4_IOPAD(0x056, WAKEUP_EN | PIN_INPUT | MUX_MODE3) /* fref_clk3_req.gpio_wk30 - VOL_UP */
+			OMAP4_IOPAD(0x05C, WAKEUP_EN | PIN_INPUT | MUX_MODE3) /* fref_clk4_out.gpio_wk8 - VOL_DN */
 		>;
 	};
 
 	prox_irq: pinmux_prox_irq {
 		pinctrl-single,pins = <
-			OMAP4_IOPAD(0x042, WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE3)
+			OMAP4_IOPAD(0x042, WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE3) /* sim_clk.gpio_wk1 - PS_VOUT */
 		>;
 	};
 };
@@ -356,18 +343,21 @@
 	pwm10_default: pinmux_pwm10_default {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0X0D6, PIN_OUTPUT | PIN_OFF_OUTPUT_LOW | MUX_MODE1)
+			/* usbb1_ulpitll_dat6.dmtimer10_pwm_evt - LED_BACKLIGHT_PWM */
 		>;
 	};
 
 	backlight_pins: pinmux_backlight_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0X0D8, PIN_OUTPUT | PIN_OFF_OUTPUT_LOW | MUX_MODE3)
+			/* usbb1_ulpitll_dat7.gpio_95 - LED_BACKLIGHT_RESET */
 		>;
 	};
 
 	lvds_pins: pinmux_lvds_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0X136, PIN_OUTPUT | MUX_MODE3)
+			/* mcspi1_simo.gpio_136 - LVDS_nSHDN */
 		>;
 	};
 
@@ -508,33 +498,41 @@
 	wlan_host_wake: pinmux_wlan_host_wake {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x0bc, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
+			/* cam_shutter.gpio_81 - WLAN_HOST_WAKE */
 		>;
 	};
 
 	bluetooth_pins: pinmux_bluetooth_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x094, PIN_OUTPUT | MUX_MODE3)
+			/* gpmc_ncs6.gpio_103 - BT_EN */
 			OMAP4_IOPAD(0x0be, PIN_OUTPUT | MUX_MODE3)
+			/* cam_strobe.gpio_82 - BT_nRST */
 			OMAP4_IOPAD(0x0c0, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
+			/* cam_globalreset.gpio_83 - BT_HOST_WAKE */
 			OMAP4_IOPAD(0x0d4, PIN_OUTPUT | MUX_MODE3)
+			/* usbb1_ulpitll_dat5.gpio_93 - BT_WAKE */
 		>;
 	};
 
 	touch_pins: pinmux_touch_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x06c, PIN_INPUT | MUX_MODE3)
+			/* gpmc_a22.gpio_46 - TSP_INT */
 		>;
 	};
 
 	vibrator_default: pinmux_vibrator_default {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x05c, PIN_INPUT_PULLDOWN | MUX_MODE3)
+			/* gpmc_ad14.gpio_38 - MOTOR_EN */
 		>;
 	};
 
 	gp2a_irq: pinmux_gp2a_irq {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x052, WAKEUP_EN | PIN_INPUT | MUX_MODE3)
+			/* gpmc_ad9.gpio_33 - ALS_INT_18 */
 		>;
 	};
 
@@ -547,15 +545,20 @@
         codec_26mhz_pins: pinmux_codec_26mhz_pins {
                 pinctrl-single,pins = <
                         OMAP4_IOPAD(0x090, PIN_OUTPUT | MUX_MODE3)
+			/* gpmc_ncs4.gpio_101 - CODEC_CLK_REQ */
                 >;
         };
 
 	mcbsp3_pins: pinmux_mcbsp3_pins {
 		pinctrl-single,pins = <
-			OMAP4_IOPAD(0x106, PIN_INPUT | MUX_MODE1)	
+			OMAP4_IOPAD(0x106, PIN_INPUT | MUX_MODE1)
+			/* abe_pdm_ul_data.abe_mcbsp3_dr - AP_I2S_DIN */
 			OMAP4_IOPAD(0x108, PIN_OUTPUT | MUX_MODE1)	
-			OMAP4_IOPAD(0x10a, PIN_INPUT | MUX_MODE1)	
-			OMAP4_IOPAD(0x10c, PIN_INPUT | MUX_MODE1)	
+			/* abe_pdm_dl_data.abe_mcbsp3_dx - AP_I2S_DOUT */
+			OMAP4_IOPAD(0x10a, PIN_INPUT | MUX_MODE1)
+			/* abe_pdm_frame.abe_mcbsp3_clkx - AP_I2S_CLK */	
+			OMAP4_IOPAD(0x10c, PIN_INPUT | MUX_MODE1)
+			/* abe_pdm_lb_clk.abe_mcbsp3_fsx - AP_I2S_SYNC */	
 		>;
 	};
 };

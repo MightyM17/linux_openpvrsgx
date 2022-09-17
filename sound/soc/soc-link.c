@@ -21,6 +21,9 @@ static inline int _soc_link_ret(struct snd_soc_pcm_runtime *rtd,
 	case -EPROBE_DEFER:
 	case -ENOTSUPP:
 		break;
+	case -22:
+		printk("_soc_link_ret soc-link.c: Error -22 but hacked to ignore it");
+		break;
 	default:
 		dev_err(rtd->dev,
 			"ASoC: error at %s on %s: %d\n",
@@ -45,7 +48,13 @@ int snd_soc_link_init(struct snd_soc_pcm_runtime *rtd)
 	if (rtd->dai_link->init)
 		ret = rtd->dai_link->init(rtd);
 
-	return soc_link_ret(rtd, ret);
+	if(soc_link_ret(rtd, ret)==-22)
+        {
+                printk("snd_soc_link_init: Error -22 but hacked to ignore it");
+                return 0;
+        }
+	else
+		return soc_link_ret(rtd, ret);
 }
 
 void snd_soc_link_exit(struct snd_soc_pcm_runtime *rtd)

@@ -23,6 +23,9 @@ static inline int _soc_dai_ret(struct snd_soc_dai *dai,
 	case -EPROBE_DEFER:
 	case -ENOTSUPP:
 		break;
+	case -22:
+		printk("_soc_dai_ret: Error -22 but hacked to ignore it");
+		break;
 	default:
 		dev_err(dai->dev,
 			"ASoC: error at %s on %s: %d\n",
@@ -61,7 +64,13 @@ int snd_soc_dai_set_sysclk(struct snd_soc_dai *dai, int clk_id,
 		ret = snd_soc_component_set_sysclk(dai->component, clk_id, 0,
 						   freq, dir);
 
-	return soc_dai_ret(dai, ret);
+	if(soc_dai_ret(dai, ret)==-22)
+	{
+		printk("snd_soc_dai_set_sysclk: Error -22 but hacked to ignore it");
+		return 0;
+	}
+	else
+		return soc_dai_ret(dai, ret);
 }
 EXPORT_SYMBOL_GPL(snd_soc_dai_set_sysclk);
 
